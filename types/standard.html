@@ -71,7 +71,7 @@
 
   <p>Short prompts also make this the cheapest slice to attack: median 82 characters, 138 of the 200 at or under 100, longest 180. A <a class="lnk" href="../types/contextual.html">contextual</a> behavior drags a passage of median ~1,170 characters through every forward pass &mdash; across a 500-step, 512-candidate <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> run, the difference between a cheap job and an expensive one.</p>
 
-  <div class="safety">This page names <b>BehaviorIDs</b> &mdash; public identifiers in the repository &mdash; and describes intent only. No behavior string is reproduced anywhere on this site; the slugs are descriptive enough to reason about the benchmark, and the strings are one copy-paste from being an attack corpus.</div>
+  <div class="safety">This page names <b>BehaviorIDs</b>. Each links to <a class="lnk" href="../data/behaviors.html">the behaviors page</a>, where the behavior is printed in full alongside its metadata and a link to its own line in the source CSV. The slugs alone are descriptive enough to reason about the benchmark; the text is there when you need the exact wording.</div>
 
   <h2 id="grading">How standard behaviors are graded &mdash; the <span class="mono">else</span> branch</h2>
 
@@ -169,6 +169,6 @@
 
   <div class="callout off">Next: <a class="lnk" href="../types/contextual.html">Contextual behaviors</a> &mdash; the 100 that carry a passage, why the <span class="mono">ContextString</span> has to reach the grader too, and the mechanics behind the 22-point DirectRequest gap above &middot; back to the <a class="lnk" href="../index.html#types">map</a>.</div>
 </main>
-<footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. No behavior text, context passage or attack prompt is reproduced on this site.</footer>
+<footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
 </body>
 </html>

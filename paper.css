@@ -139,3 +139,25 @@ h2[id],h3[id]{scroll-margin-top:72px}
 .filterbar input,.filterbar select{background:var(--panel);color:var(--ink);border:1px solid var(--line);
   border-radius:6px;padding:6px 9px;font-family:inherit;font-size:12px}
 .filterbar .count{color:var(--ink-dim)}
+
+/* behavior index: inline behavior text (Igor's call, 2026-09-08) */
+td.beh{white-space:normal;max-width:52ch;line-height:1.5;color:var(--ink)}
+td.beh .idline{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+td.beh .txt{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14px;color:var(--ink-mid)}
+td.beh details{margin-top:7px}
+td.beh details summary{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-dim);cursor:pointer;list-style:revert}
+td.beh details summary:hover{color:var(--def)}
+td.beh details .ctx{margin-top:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line-soft);
+  border-radius:6px;font-size:13px;line-height:1.6;color:var(--ink-mid);white-space:pre-wrap;
+  max-height:340px;overflow-y:auto}
+tr:target{background:rgba(53,207,224,.07)}
+tr:target td{border-bottom-color:var(--def)}
+tr:target td.beh .idline a{color:var(--off-bright)}
+table.kv td{vertical-align:top}
+
+/* verbatim behavior text on harm pages (Igor's call, 2026-09-08) */
+.btext{font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--ink);border-left:2px solid var(--off);
+  padding:5px 0 5px 11px;margin:0 0 8px;font-size:14px;line-height:1.5}
+td .btext{margin-bottom:7px}
+.btext .q{color:var(--ink-dim)}
