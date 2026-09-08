@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What the paper found &mdash; HarmBench, mapped</title>
+<meta name="description" content="Reading HarmBench Table 6: 29 models by 16 attacks, what the numbers actually say, and the copyright Average row that does not add up." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../paper.css" />
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <div class="brand"><span class="dot"></span>HARMBENCH&nbsp;//&nbsp;FIELD&nbsp;MAP</div>
+  <a class="back" href="../index.html#measure">&larr; field map</a>
+</div></header>
+<main>
+  <div class="eyebrow"><span class="box bb mono">MEASURING &middot; 03 OF 04</span><span class="mono">29 model rows &times; 16 attack columns &middot; 400 text behaviors &middot; GCG 54.3, DirectRequest 25.3</span></div>
+  <h1>What the paper found</h1>
+  <div class="authors">Table 6 read cell by cell &mdash; the findings that survive, the ones that need a caveat, and one printed row that is arithmetically impossible.</div>
+
+  <div class="tldr"><b>TL;DR &mdash;</b> Eighteen attacks against 33 targets produce a negative result stated twice: no model resisted every attack, no attack broke every model. Two models built on the same base weights by different post-training pipelines differ far more than two model sizes do &mdash; Zephyr 7B is 69.5 under GCG, and those same weights adversarially trained are 5.5. The number worth quoting is never the best attack&rsquo;s score but its gap over DirectRequest, which is simply asking. And one printed row, the Average under the copyright sub-table, is arithmetically impossible; the recomputed values are below with the proof.</div>
+
+  <div class="statgrid">
+    <div class="s"><div class="k">Strongest column</div><div class="v">54.3</div><div class="n">GCG, all behaviors &mdash; over the 19 open-weight rows it could run against</div></div>
+    <div class="s"><div class="k">The floor</div><div class="v">25.3</div><div class="n">DirectRequest &mdash; no attack at all, all 29 rows</div></div>
+    <div class="s"><div class="k">Weakest column</div><div class="v">16.6</div><div class="n">PAP-top5 &mdash; and its best single cell anywhere is 32.9</div></div>
+    <div class="s"><div class="k">Grid</div><div class="v">29 &times; 16</div><div class="n">target rows &times; methods, over 400 text behaviors</div></div>
+    <div class="s"><div class="k">Label noise</div><div class="v">~7%</div><div class="n">classifier vs. human agreement is ~93%</div></div>
+  </div>
+
+  <p class="lead" style="max-width:760px">Every other page in this map describes machinery: what a behavior is, how the grader decides, what a search step costs. This page is the payoff &mdash; the one table where all of it turns into numbers, and the reading of those numbers that a practitioner should carry away. Most of the useful content is in the <em>shape</em> of the grid rather than any single cell: which cells are empty and why, which columns are averaged over different populations, and which comparisons the table supports versus which ones people casually make and it does not.</p>
+
+  <h2 id="table6">The grid</h2>
+
+  <p>Table 6 is 29 target rows by 16 attack columns. Each cell is an attack success rate: the fraction of that method&rsquo;s test cases against that model whose completion the <a class="lnk" href="../measure/classifier.html">HarmBench classifier</a> labelled as actually exhibiting the requested behavior. Generation is greedy, capped at 512 new tokens, and every cell in the grid uses the same behaviors and the same grader &mdash; that comparability is the whole point of the benchmark, and it is why a HarmBench number is only meaningful against another HarmBench number computed the same way.</p>
+
+  <p>&ldquo;All behaviors&rdquo; here means the <strong>400 text behaviors</strong>: 200 <a class="lnk" href="../types/standard.html">standard</a> + 100 <a class="lnk" href="../types/contextual.html">contextual</a> + 100 <a class="lnk" href="../types/copyright.html">copyright</a>. The 110 multimodal behaviors are evaluated separately in Tables 9 and 10 and are not blended in here &mdash; the weights that reconcile the sub-tables to this one (see <a class="lnk" href="#discrepancy">the discrepancy section</a>) pin that down arithmetically. The individual behavior IDs behind every cell are browsable in <a class="lnk" href="../data/behaviors.html">the behavior index</a>.</p>
+
+  <div class="scroll"><table class="kv">
+    <thead><tr>
+      <th>Model</th>
+      <th class="num"><a class="lnk" href="../attacks/gradient.html#gcg">GCG</a></th>
+      <th class="num"><a class="lnk" href="../attacks/gradient.html#gcg-multi">GCG-M</a></th>
+      <th class="num"><a class="lnk" href="../attacks/gradient.html#gcg-transfer">GCG-T</a></th>
+      <th class="num"><a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a></th>
+      <th class="num"><a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a></th>
+      <th class="num"><a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-T</a></th>
+      <th class="num"><a class="lnk" href="../attacks/llm-optimizer.html#autodan">AutoDAN</a></th>
+      <th class="num"><a class="lnk" href="../attacks/llm-optimizer.html#pap-top5">PAP-5</a></th>
+      <th class="num"><a class="lnk" href="../attacks/template.html#human-jailbreaks">Human</a></th>
+      <th class="num"><a class="lnk" href="../attacks/template.html#directrequest">DR</a></th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Llama 2 7B Chat</td><td class="num">32.5</td><td class="num">21.2</td><td class="num">19.7</td><td class="num">9.3</td><td class="num">9.3</td><td class="num">7.8</td><td class="num">0.5</td><td class="num">2.7</td><td class="num">0.8</td><td class="num">0.8</td></tr>
+      <tr><td>Llama 2 13B Chat</td><td class="num">30.0</td><td class="num">11.3</td><td class="num">16.4</td><td class="num">15.0</td><td class="num">14.2</td><td class="num">8.0</td><td class="num">0.8</td><td class="num">3.3</td><td class="num">1.7</td><td class="num">2.8</td></tr>
+      <tr><td>Llama 2 70B Chat</td><td class="num">37.5</td><td class="num">10.8</td><td class="num">22.1</td><td class="num">14.5</td><td class="num">13.3</td><td class="num">16.3</td><td class="num">2.8</td><td class="num">4.1</td><td class="num">2.2</td><td class="num">2.8</td></tr>
+      <tr><td>Vicuna 7B</td><td class="num">65.5</td><td class="num">61.5</td><td class="num">60.8</td><td class="num">53.5</td><td class="num">51.0</td><td class="num">59.8</td><td class="num">66.0</td><td class="num">18.9</td><td class="num">39.0</td><td class="num">24.3</td></tr>
+      <tr><td>Vicuna 13B</td><td class="num">67.0</td><td class="num">61.3</td><td class="num">54.9</td><td class="num">47.5</td><td class="num">54.8</td><td class="num">62.1</td><td class="num">65.5</td><td class="num">19.3</td><td class="num">40.0</td><td class="num">19.8</td></tr>
+      <tr><td>Baichuan 2 13B</td><td class="num">62.3</td><td class="num">52.4</td><td class="num">45.3</td><td class="num">52.3</td><td class="num">54.8</td><td class="num">63.6</td><td class="num">60.1</td><td class="num">21.7</td><td class="num">31.7</td><td class="num">19.3</td></tr>
+      <tr><td>Mistral 7B</td><td class="num">69.8</td><td class="num">63.6</td><td class="num">64.5</td><td class="num">52.5</td><td class="num">62.5</td><td class="num">66.1</td><td class="num">71.5</td><td class="num">27.2</td><td class="num">58.0</td><td class="num">46.3</td></tr>
+      <tr><td>Starling 7B</td><td class="num">66.0</td><td class="num">61.9</td><td class="num">59.0</td><td class="num">58.3</td><td class="num">68.5</td><td class="num">66.3</td><td class="num">74.0</td><td class="num">31.9</td><td class="num">60.2</td><td class="num">57.0</td></tr>
+      <tr><td>Zephyr 7B</td><td class="num">69.5</td><td class="num">62.5</td><td class="num">61.1</td><td class="num">58.8</td><td class="num">66.5</td><td class="num">69.3</td><td class="num">75.0</td><td class="num">32.9</td><td class="num">66.0</td><td class="num">65.8</td></tr>
+      <tr><td>Zephyr 7B + R2D2</td><td class="num"><span class="hi">5.5</span></td><td class="num">4.9</td><td class="num">0.0</td><td class="num">48.0</td><td class="num">60.8</td><td class="num">54.3</td><td class="num">17.0</td><td class="num">24.3</td><td class="num">13.6</td><td class="num">14.2</td></tr>
+      <tr><td>GPT-3.5 Turbo 0613</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">38.9</td><td class="num">46.8</td><td class="num">47.7</td><td class="num">62.3</td><td class="num na">&ndash;</td><td class="num">15.4</td><td class="num">24.5</td><td class="num">21.3</td></tr>
+      <tr><td>GPT-3.5 Turbo 1106</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">42.5</td><td class="num">35.0</td><td class="num">39.2</td><td class="num">47.5</td><td class="num na">&ndash;</td><td class="num">11.3</td><td class="num">2.8</td><td class="num">33.0</td></tr>
+      <tr><td>GPT-4 0613</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">22.0</td><td class="num">39.3</td><td class="num">43.0</td><td class="num">54.8</td><td class="num na">&ndash;</td><td class="num">16.8</td><td class="num">11.3</td><td class="num">21.0</td></tr>
+      <tr><td>GPT-4 Turbo 1106</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">22.3</td><td class="num">33.0</td><td class="num">36.4</td><td class="num">58.5</td><td class="num na">&ndash;</td><td class="num">11.1</td><td class="num">2.6</td><td class="num">9.3</td></tr>
+      <tr><td>Claude 1</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">12.1</td><td class="num">10.0</td><td class="num">7.0</td><td class="num">1.5</td><td class="num na">&ndash;</td><td class="num">1.3</td><td class="num">2.4</td><td class="num">5.0</td></tr>
+      <tr><td>Claude 2</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">2.7</td><td class="num">4.8</td><td class="num">2.0</td><td class="num">0.8</td><td class="num na">&ndash;</td><td class="num">1.0</td><td class="num">0.3</td><td class="num">2.0</td></tr>
+      <tr><td>Claude 2.1</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">2.6</td><td class="num">2.8</td><td class="num">2.5</td><td class="num">0.8</td><td class="num na">&ndash;</td><td class="num">0.9</td><td class="num">0.3</td><td class="num">2.0</td></tr>
+      <tr><td>Gemini Pro</td><td class="num na">&ndash;</td><td class="num na">&ndash;</td><td class="num">18.0</td><td class="num">35.1</td><td class="num">38.8</td><td class="num">31.2</td><td class="num na">&ndash;</td><td class="num">11.8</td><td class="num">12.1</td><td class="num">18.0</td></tr>
+      <tr class="tot"><td>Average (all 29 rows)</td><td class="num">54.3</td><td class="num">45.0</td><td class="num">38.8</td><td class="num">40.7</td><td class="num">45.2</td><td class="num">48.3</td><td class="num">52.7</td><td class="num">16.6</td><td class="num">27.3</td><td class="num">25.3</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>This is 18 of the paper&rsquo;s 29 model rows and 10 of its 16 attack columns. <strong>Cut rows:</strong> Baichuan 2 7B, Qwen 7B / 14B / 72B Chat, Koala 7B and 13B, Orca 2 7B and 13B, SOLAR 10.7B-Instruct, Mixtral 8x7B, OpenChat 3.5 1210. <strong>Cut columns:</strong> <a class="lnk" href="../attacks/gradient.html#pez">PEZ</a>, <a class="lnk" href="../attacks/gradient.html#gbda">GBDA</a>, <a class="lnk" href="../attacks/gradient.html#uat">UAT</a>, <a class="lnk" href="../attacks/gradient.html#autoprompt">AutoPrompt</a>, <a class="lnk" href="../attacks/template.html#sfs">Stochastic Few-Shot</a> and <a class="lnk" href="../attacks/template.html#zeroshot">ZeroShot</a> &mdash; their column averages are in the next table and none of them changes a conclusion here. The cut rows sit in the same 46&ndash;74 band as Vicuna, Mistral and Starling, so nothing at the extremes was removed. <strong>The Average row is over all 29 rows, not the 18 shown.</strong> The full grid is in the paper: <a class="lnk" href="https://arxiv.org/html/2402.04249v2">arxiv.org/html/2402.04249v2</a>.</p>
+
+  <p>The dashes are <strong>structural, not missing data</strong>. A blank cell means the method cannot be run against that target at all, because it needs something the target does not expose &mdash; token gradients for the <a class="lnk" href="../attacks/gradient.html">gradient family</a>, or at minimum next-token logits. An API-only model behind a chat endpoint offers neither, so seven of the sixteen columns are empty for every closed model. That is a fact about access, and the <a class="lnk" href="../measure/pipeline.html#models-yaml">pipeline&rsquo;s model registry</a> encodes it directly: each method declares which target model types it is allowed to run against, and the pipeline simply does not schedule the impossible combinations. Nobody tried GCG on Claude 2.1 and got 0.0; nobody could try.</p>
+
+  <h3>Column averages &mdash; all 16 methods, strongest to weakest</h3>
+
+  <p>The <span class="mono">n</span> column below is mine, counted from the grid, and it is the reason these averages are not directly comparable to each other: each is computed over a different population of models.</p>
+
+  <div class="scroll"><table class="kv">
+    <thead><tr><th>Method</th><th class="num">Avg ASR</th><th class="num">n rows</th><th>What that population is</th></tr></thead>
+    <tbody>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#gcg">GCG</a></td><td class="num">54.3</td><td class="num">19</td><td>open weights, gradients required</td></tr>
+      <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#autodan">AutoDAN</a></td><td class="num">52.7</td><td class="num">21</td><td>open weights, scoring by loss</td></tr>
+      <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a></td><td class="num">48.3</td><td class="num">29</td><td>every target, incl. all closed</td></tr>
+      <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a></td><td class="num">45.2</td><td class="num">29</td><td>every target, incl. all closed</td></tr>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#gcg-multi">GCG-Multi</a></td><td class="num">45.0</td><td class="num">19</td><td>open weights, gradients required</td></tr>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#autoprompt">AutoPrompt</a></td><td class="num">43.7</td><td class="num">19</td><td>open weights, gradients required</td></tr>
+      <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a></td><td class="num">40.7</td><td class="num">29</td><td>every target, incl. all closed</td></tr>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#gcg-transfer">GCG-Transfer</a></td><td class="num">38.8</td><td class="num">29</td><td>crafted on surrogates, replayed anywhere</td></tr>
+      <tr><td><a class="lnk" href="../attacks/template.html#sfs">Stochastic Few-Shot</a></td><td class="num">38.3</td><td class="num">21</td><td>open weights, scoring by loss</td></tr>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#uat">UAT</a></td><td class="num">30.8</td><td class="num">19</td><td>open weights, gradients required</td></tr>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#gbda">GBDA</a></td><td class="num">29.8</td><td class="num">19</td><td>open weights, gradients required</td></tr>
+      <tr><td><a class="lnk" href="../attacks/gradient.html#pez">PEZ</a></td><td class="num">29.0</td><td class="num">19</td><td>open weights, gradients required</td></tr>
+      <tr><td><a class="lnk" href="../attacks/template.html#human-jailbreaks">Human Jailbreaks</a></td><td class="num">27.3</td><td class="num">29</td><td>every target, incl. all closed</td></tr>
+      <tr><td><a class="lnk" href="../attacks/template.html#zeroshot">ZeroShot</a></td><td class="num">25.4</td><td class="num">29</td><td>every target, incl. all closed</td></tr>
+      <tr><td><a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a></td><td class="num">25.3</td><td class="num">29</td><td>every target &mdash; this is the floor</td></tr>
+      <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#pap-top5">PAP-top5</a></td><td class="num">16.6</td><td class="num">29</td><td>every target, incl. all closed</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Read that <span class="mono">n</span> column before you rank anything. GCG&rsquo;s 54.3 is an average over nineteen open-weight models, eighteen of which have no adversarial training at all. TAP-Transfer&rsquo;s 48.3 includes Claude 2 and Claude 2.1, which contribute cells of 0.8 apiece and pull the mean down hard. Restricted to the same nineteen rows the ordering would shift; the paper&rsquo;s own headline ranking is honest about method strength on the models each method can reach, not a like-for-like tournament. The 5.5-point gap between GCG and AutoDAN, on populations of 19 and 21 models, is not a result &mdash; it is a coin flip dressed as a decimal.</p>
+
+  <h3>By functional slice</h3>
+
+  <div class="scroll"><table class="kv">
+    <thead><tr><th>Slice</th><th class="num">GCG</th><th class="num">AutoDAN</th><th class="num">TAP-T</th><th class="num">PAIR</th><th class="num">Human</th><th class="num">DR</th></tr></thead>
+    <tbody>
+      <tr><td>All text behaviors (400)</td><td class="num">54.3</td><td class="num">52.7</td><td class="num">48.3</td><td class="num">40.7</td><td class="num">27.3</td><td class="num">25.3</td></tr>
+      <tr><td><a class="lnk" href="../types/standard.html">Standard</a> (200)</td><td class="num">69.1</td><td class="num">68.3</td><td class="num">60.0</td><td class="num">47.5</td><td class="num">31.9</td><td class="num">23.9</td></tr>
+      <tr><td><a class="lnk" href="../types/contextual.html">Contextual</a> (100)</td><td class="num">74.8</td><td class="num">68.4</td><td class="num">67.5</td><td class="num">60.5</td><td class="num">41.4</td><td class="num">46.2</td></tr>
+      <tr><td><a class="lnk" href="../types/copyright.html">Copyright</a> (100)</td><td class="num">4.6</td><td class="num">6.0</td><td class="num">5.9</td><td class="num">7.5</td><td class="num">4.3</td><td class="num">7.3</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The copyright row is recomputed from the grid, not copied from the paper &mdash; see <a class="lnk" href="#discrepancy">below</a> for why. Notice what this table does to the headline: the all-behaviors number is a weighted blend in which a quarter of the mass is a slice almost nothing scores on. Zephyr 7B under GCG is 90.5 on standard behaviors and 90.0 on contextual ones; its famous 69.5 is what you get after averaging in 7.0 on copyright. If you quote 69.5 as &ldquo;Zephyr complies with 70% of harmful requests&rdquo; you are understating the standard-behavior result by twenty-one points while overstating the copyright one by sixty-three.</p>
+
+  <h2 id="findings">The findings</h2>
+
+  <h3>Nothing is robust to everything; nothing breaks everything</h3>
+  <p>This is the paper&rsquo;s headline and the grid supports it in both directions. Read down a column: AutoDAN peaks at 75.0 on Zephyr 7B and bottoms out at 0.5 on Llama 2 7B Chat &mdash; a 150-fold spread within one attack. Read across a row: Llama 2 7B Chat is at 0.5 under AutoDAN and 0.8 under Human Jailbreaks, and 32.5 under GCG. Whatever &ldquo;robustness&rdquo; means, it is not a scalar property of the model.</p>
+  <p>One honest wrinkle. The Claude 2 and Claude 2.1 rows come close to being exceptions: their best cells across the eight methods that can reach them are 4.8 and 4.1, which at ~7% classifier <a class="lnk" href="../measure/classifier.html#agreement">label noise</a> is not distinguishable from zero. But only eight of the sixteen methods could be run against them at all, so those rows are a statement about query-only attacks, not about the models. The complementary observation is sharper: <strong>GCG never fell below 30.0 on any model it could run against</strong>, excluding the one model that was adversarially trained against it. Its floor over eighteen undefended open-weight targets is Llama 2 13B Chat at 30.0. A method that reliably clears 30% on everything with weights is a different kind of threat from one with a high average and a wide variance.</p>
+
+  <h3>Model size does not predict robustness</h3>
+  <p>Within the Llama 2 Chat family, GCG scores 32.5 on 7B, 30.0 on 13B, and <strong>37.5 on 70B</strong> &mdash; the largest model is the least robust of the three, and the ordering is not even monotonic. Vicuna moves the same way in miniature (65.5 at 7B, 67.0 at 13B). The one place size does buy something is at the very bottom of the Llama rows under AutoDAN &mdash; 0.5, 0.8, 2.8 going up in size, all of them within noise of zero and moving in the wrong direction anyway. Scale is not the variable. Anyone extrapolating &ldquo;bigger models will be safer&rdquo; from capability trends gets no support here.</p>
+
+  <h3>The training pipeline is the variable</h3>
+  <p>Mistral 7B scores 69.8 under GCG. Zephyr 7B &mdash; a fine-tune of that same base &mdash; scores 69.5. Take Zephyr&rsquo;s own SFT pipeline, add adversarial training against a refreshed pool of GCG test cases, and the same architecture and roughly the same weights land at <span class="mono">5.5</span>. A 64-point swing, no change of base model, no change of size. That is the strongest signal in the table and it points squarely at post-training.</p>
+  <p>It is also the finding most easily over-read, because the same defended row is at 48.0 under PAIR and 54.3 under TAP-Transfer &mdash; barely moved from the undefended Zephyr&rsquo;s 58.8 and 69.3. Training against a gradient adversary bought robustness to gradient adversaries. <a class="lnk" href="../measure/defenses.html#r2d2">The defenses page</a> takes that apart properly, including what it cost in capability.</p>
+
+  <h3>Contextual behaviors are easier than standard ones</h3>
+  <p>GCG: 74.8 contextual against 69.1 standard. PAIR: 60.5 against 47.5. DirectRequest: <strong>46.2 against 23.9</strong> &mdash; nearly double at the floor, where no attack machinery is involved at all. The gap is widest for the cheapest methods, which suggests the mechanism is not that contextual behaviors are harder to defend but that supplying a technical passage alongside the request changes how the request reads: it arrives as a comprehension task about supplied material rather than a bare demand. The paper flags this as a problem rather than a curiosity:</p>
+  <blockquote class="q"><span>&ldquo;ASR is considerably higher for contextual behaviors than standard behaviors. This is concerning, as contextual behaviors represent more specific harmful tasks that would be challenging to look up the answer to on a search engine. Thus, behaviors [that] would [be] more differentially harmful for LLMs to exhibit are easier to elicit with red teaming methods.&rdquo;</span><span class="cite">&mdash; HarmBench, Figure 11 caption</span></blockquote>
+  <p>That is backwards from the design intent. The <a class="lnk" href="../types/contextual.html">contextual type</a> exists precisely to test the behaviors where a model adds real capability over a search engine, and those are the ones models are most willing to do.</p>
+
+  <h3>DirectRequest at 25.3 is the floor, and the gap is the finding</h3>
+  <p><a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a> is the behavior string handed to the model with no attack at all. It averages 25.3 &mdash; a quarter of behaviors need no red teaming. ZeroShot (25.4) and Human Jailbreaks (27.3) sit within two points of it, all three inside the classifier&rsquo;s own noise band. So the useful quantity is never the attack&rsquo;s absolute score; it is the delta over asking.</p>
+  <p>Compare two rows. On Zephyr 7B, DirectRequest gets 65.8 and GCG gets 69.5 &mdash; five hundred optimisation steps per behavior bought <strong>3.7 points</strong>, because the model was already complying. On Llama 2 7B Chat, DirectRequest gets 0.8 and GCG gets 32.5 &mdash; the same optimiser bought <strong>31.7 points</strong>. Identical method, identical budget, and the two numbers mean entirely different things. A published ASR without its DirectRequest baseline alongside is uninterpretable, and this is the single most portable habit to take from the paper.</p>
+
+  <h3>PAP-top5 is the weakest column and that is not the whole story</h3>
+  <p><a class="lnk" href="../attacks/llm-optimizer.html#pap-top5">PAP-top5</a> averages 16.6, last of sixteen, and its best cell anywhere in the grid is 32.9 on Zephyr &mdash; the only column that never once clears a third. But it is query-only, runs against closed models, and costs a handful of generations per behavior against GCG&rsquo;s hundreds of gradient steps on a GPU you have to own. Ranked on ASR per dollar rather than ASR, the ordering inverts. This is why the map treats the column averages as a description of the methods&rsquo; reach rather than a leaderboard.</p>
+
+  <h3>Copyright is near the floor for everything</h3>
+  <p>Every method lands between 4.3 and 8.5 on the <a class="lnk" href="../types/copyright.html">copyright slice</a>, and no individual cell in that 29&times;16 grid exceeds 28.0. This is a property of the metric, not of model behavior: copyright is graded by <a class="lnk" href="../measure/classifier.html#minhash">MinHash similarity</a> against shipped hashes of the source text, so it fires only on near-verbatim regurgitation. A model that produces a competent paraphrase of a copyrighted passage scores exactly zero. The <a class="lnk" href="../harms/copyright.html">copyright category page</a> covers what that means for the category; the practical consequence here is that the copyright column measures memorised-text extraction, and calling it &ldquo;copyright violation ASR&rdquo; overclaims.</p>
+
+  <h3>What the paper does not report: ASR by semantic category</h3>
+  <p><strong>There is no per-semantic-category ASR table anywhere in the paper.</strong> The only per-category evidence is three figures &mdash; images, with no tabulated values. Figure 9 averages ASR over the seven categories across all attacks and open-source models, and its caption claims copyright is much lower and <em>the average ASR is similar across all other categories</em>. Figure 11 does the same split for standard / contextual / copyright &mdash; the claim quoted above. Figure 10 is the only one that separates models:</p>
+  <blockquote class="q"><span>&ldquo;For specific models, some categories of harm are easier to elicit than others. For example, on Llama 2 and GPT models the Misinformation &amp; Disinformation category has the highest ASR, but for Baichuan 2 and Starling the Chemical &amp; Biological Weapons / Drugs category has the highest ASR. This suggests that training distributions can greatly influence the kinds of behaviors that are harder to elicit.&rdquo;</span><span class="cite">&mdash; HarmBench, Figure 10 caption</span></blockquote>
+  <p>So: <a class="lnk" href="../harms/misinformation-disinformation.html">Misinformation &amp; Disinformation</a> is the highest category for the Llama 2 and GPT families, and <a class="lnk" href="../harms/chemical-biological.html">Chemical &amp; Biological Weapons / Drugs</a> is highest for Baichuan 2 and Starling. That is the entire per-category result. It is a ranking claim about four model families with no numbers attached, and copyright is excluded from the figure. Anyone who needs per-category ASR has to recompute it from the raw completions in the Zenodo archive (record 10714577, 10.4 GB) by joining every completion back to its behavior&rsquo;s <span class="mono">SemanticCategory</span> in <a class="lnk" href="../data/behaviors.html">the behavior CSV</a>. No page on this site prints a per-category number the paper does not support, and neither should you.</p>
+
+  <h2 id="discrepancy">One printed row does not add up</h2>
+
+  <p>The arXiv v2 HTML prints an Average row under Table 6&rsquo;s copyright sub-table reading <span class="mono">50.7 / 41.6 / 36.5 / 28.2 / 28.7 / 29.6 / 40.9 / 37.1 / 25.4 / 39.0 / 42.6 / 45.4 / 48.8 / 17.3 / 26.2 / 25.6</span>. It cannot be the mean of the grid above it: <strong>every individual cell in that grid lies between 0.0 and 28.0</strong>, so no column mean can be 50.7. Recomputing the sixteen column means from the printed cells gives, in the table&rsquo;s column order (GCG, GCG-M, GCG-T, PEZ, GBDA, UAT, AP, SFS, ZS, PAIR, TAP, TAP-T, AutoDAN, PAP-top5, Human, DR):</p>
+
+  <div class="scroll"><table class="kv">
+    <thead><tr><th>Source</th><th class="num">GCG</th><th class="num">GCG-M</th><th class="num">GCG-T</th><th class="num">PEZ</th><th class="num">GBDA</th><th class="num">UAT</th><th class="num">AP</th><th class="num">SFS</th><th class="num">ZS</th><th class="num">PAIR</th><th class="num">TAP</th><th class="num">TAP-T</th><th class="num">AutoDAN</th><th class="num">PAP-5</th><th class="num">Human</th><th class="num">DR</th></tr></thead>
+    <tbody>
+      <tr><td>Printed in Table 6</td><td class="num">50.7</td><td class="num">41.6</td><td class="num">36.5</td><td class="num">28.2</td><td class="num">28.7</td><td class="num">29.6</td><td class="num">40.9</td><td class="num">37.1</td><td class="num">25.4</td><td class="num">39.0</td><td class="num">42.6</td><td class="num">45.4</td><td class="num">48.8</td><td class="num">17.3</td><td class="num">26.2</td><td class="num">25.6</td></tr>
+      <tr><td>Recomputed from the grid</td><td class="num">4.6</td><td class="num">3.3</td><td class="num">4.3</td><td class="num">4.0</td><td class="num">3.9</td><td class="num">4.1</td><td class="num">4.9</td><td class="num">6.6</td><td class="num">7.2</td><td class="num">7.5</td><td class="num">8.5</td><td class="num">5.9</td><td class="num">6.0</td><td class="num">7.4</td><td class="num">4.3</td><td class="num">7.3</td></tr>
+      <tr><td>Table 7 (test split), printed</td><td class="num">4.7</td><td class="num">3.5</td><td class="num">4.4</td><td class="num">4.2</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td></tr>
+      <tr><td>Table 8 (validation), printed</td><td class="num">3.9</td><td class="num">2.9</td><td class="num">3.9</td><td class="num">3.3</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td><td class="num na">&hellip;</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The recomputed row sits neatly between the test-split and validation-split copyright averages the paper prints in its own Tables 7 and 8 &mdash; which are computed over subsets of exactly the same cells and would have to bracket it. The printed row does not.</p>
+
+  <p><strong>Reconciliation one, the whole benchmark.</strong> Table 6&rsquo;s all-behaviors numbers should be the 200/100/100 weighted blend of its three sub-tables. Using the recomputed copyright figure: <span class="mono">(200&times;69.1 + 100&times;74.8 + 100&times;4.6) / 400 = 21,760 / 400 = 54.4</span>, against a printed all-behaviors GCG average of 54.3. The remaining tenth is not slack in the argument &mdash; averaging the all-behaviors GCG column directly gives 54.32, and the difference traces to two rows (Qwen 7B Chat and Qwen 14B Chat) whose own sub-table cells do not blend to their printed all-behaviors cells. Substitute the <em>printed</em> copyright average instead and you get <span class="mono">(13,820 + 7,480 + 5,070) / 400 = 65.9</span> &mdash; eleven and a half points adrift of the paper&rsquo;s own headline.</p>
+
+  <p><strong>Reconciliation two, a single row.</strong> Llama 2 7B Chat under GCG: standard 34.5, contextual 58.0, copyright 3.0. <span class="mono">(200&times;34.5 + 100&times;58.0 + 100&times;3.0) / 400 = 13,000 / 400 = 32.5</span>, exactly the printed all-behaviors cell. The same check holds on Zephyr 7B (90.5 / 90.0 / 7.0 &rarr; 69.5) and on the defended model (0.0 / 21.0 / 1.0 &rarr; 5.5). The per-cell copyright values are therefore sound; it is only the Average row beneath them that is wrong.</p>
+
+  <p>Conclusion: <strong>the printed copyright Average row in v2 is a typesetting error</strong> &mdash; most likely the standard-behaviors averages pasted into the copyright block, which is consistent with their magnitude. This map uses the recomputed values everywhere, and <a class="lnk" href="../sources.html">the sources page</a> records the check. The same arithmetic incidentally confirms that Table 6 covers the 400 text behaviors, not all 510 &mdash; the weights only balance at 200 + 100 + 100.</p>
+
+  <h3>Two smaller discrepancies</h3>
+  <p><strong>The validation split.</strong> The paper describes the text validation set as 40 standard + 20 contextual behaviors. The shipped CSV has <strong>41 standard + 19 contextual</strong> (plus 20 copyright, for 80). This is consistent with the paper&rsquo;s own note that the stratified sample was adjusted by hand afterwards, and it changes nothing about the results &mdash; but a harness that hard-codes 40/20 will silently mis-slice. The counts on this site are parsed from the CSVs.</p>
+  <p><strong>&sect;6.3&rsquo;s prose against its own tables.</strong> The body text reports Llama 2 7B Chat at 31.8 &rarr; 5.9 under the paper&rsquo;s defense, and Llama 2 13B Chat at 30.2 &rarr; 5.9. The v2 tables give 32.5 &rarr; 5.5 on all behaviors and 31.9 &rarr; 6.3 on the test split, with 13B at 30.0. The prose figures match neither split exactly and probably predate a re-run. <strong>This map uses the table figures throughout</strong>, and names the split whenever a number could be either.</p>
+
+  <h2 id="reading">How to read someone else&rsquo;s HarmBench number</h2>
+
+  <p>Five questions, in order of how often they change the answer.</p>
+
+  <ul>
+    <li><strong>Which split?</strong> All 400, the 320-behavior test split, or the 80-behavior validation split. Column averages barely move &mdash; GCG is 54.3 / 54.2 / 54.9 across the three &mdash; but individual rows swing hard, because 80 behaviors means one behavior is 1.25 points. The defended Zephyr under GCG is 5.5 on all behaviors, 6.3 on test, and <strong>2.5 on validation</strong>. Same model, same attack, three numbers.</li>
+    <li><strong>Which classifier?</strong> The test classifier is a Llama 2 13B fine-tune at ~93% human agreement; the validation classifier is a Mistral 7B at 88.6%. They are not interchangeable, and the <a class="lnk" href="../measure/classifier.html#failure-modes">standing rule</a> is that you never tune an attack against the classifier you report with.</li>
+    <li><strong>What token budget?</strong> 512 new tokens, greedy, fixed. It is load-bearing &mdash; a longer budget gives a partially-complying answer more room to become a complete one, and the ASR moves without anything about the model changing.</li>
+    <li><strong>Was DirectRequest reported alongside?</strong> If not, the number has no floor and cannot be read. See the Zephyr 65.8 &rarr; 69.5 case above.</li>
+    <li><strong>All-behaviors or standard-only?</strong> An all-behaviors figure is a blend with 100 copyright behaviors nothing scores on. It is systematically about 15 points below the standard-behaviors figure for a compliant model, and the two get quoted interchangeably.</li>
+  </ul>
+
+  <p>And the thing none of these five will tell you: <strong>over-refusal is not measured anywhere in HarmBench</strong>. There is no benign control set. A model that refuses every request scores 0.0% ASR across all sixteen columns and looks like the safest system ever built. The only capability check in the entire paper is a single MT-Bench score for the authors&rsquo; own defended model. Any robustness claim sourced from this table is half a result; the other half has to come from somewhere else.</p>
+
+  <p>Which leads to the sentence worth taking away from the whole measuring arc, and the one this map would put on a poster: <strong>an ASR is a claim about the attack you ran, not about the model you ran it against.</strong> The defended Zephyr row is the proof &mdash; 5.5 under the attack it was trained against, 60.8 under one it was not.</p>
+
+  <div class="callout">Next: <a class="lnk" href="../measure/defenses.html">Defenses: R2D2 and the read-across caveat</a> &middot; back to the <a class="lnk" href="../index.html#measure">map</a>.</div>
+</main>
+<footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. No behavior text, context passage or attack prompt is reproduced on this site.</footer>
+</body>
+</html>
