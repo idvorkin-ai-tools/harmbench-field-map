@@ -18,9 +18,9 @@
 <main>
   <div class="eyebrow"><span class="box wb mono">THE TYPES &middot; 04 OF 04</span><span class="mono">110 behaviors &middot; no published split &middot; 5 methods &middot; 50 of them CAPTCHAs</span></div>
   <h1>Multimodal behaviors</h1>
-  <div class="authors">The fourth functional category &mdash; an image, a question about it, and a text-only judge that never looks at the picture.</div>
+  <div class="authors">The fourth functional category: an image, a question about it, and a text-only judge that never sees the picture.</div>
 
-  <div class="tldr"><b>TL;DR &mdash;</b> A multimodal behavior is a picture plus a request that refers to it, so neither half is harmful alone. It is the benchmark's least balanced slice: 90 of the 110 come from two harm categories, 50 are CAPTCHA-solving, and no test/val split was published. Grading runs through a third classifier &mdash; a <em>text</em> model reading a hand-written redacted description of an image it never sees. The headline is Table 10: a PGD-optimised noise image drives <b>48.75&ndash;66.00%</b> ASR on ordinary text behaviors, while rendering those requests into an image gets 3.50&ndash;5.25%. The pixel channel is a second door in, and a far less defended one.</div>
+  <div class="tldr"><b>TL;DR:</b> A multimodal behavior is a picture plus a request that refers to it, so neither half is harmful alone. It is the benchmark's least balanced slice: 90 of the 110 come from two harm categories, 50 are CAPTCHA-solving, and no test/val split was published. Grading runs through a third classifier, a <em>text</em> model reading a hand-written redacted description of an image it never sees. The headline is Table 10: a PGD-optimised noise image drives <b>48.75&ndash;66.00%</b> ASR on ordinary text behaviors, while rendering those requests into an image gets 3.50&ndash;5.25%.</div>
 
   <div class="chips">
     <a class="tag wb" href="../types/standard.html">standard behaviors</a>
@@ -37,19 +37,19 @@
     <div class="s"><div class="k">Methods</div><div class="v">5</div><div class="n">3 need pixel gradients</div></div>
   </div>
 
-  <p class="lead" style="max-width:760px">The other three functional types differ in how a request is <em>phrased</em>. This one differs in what a request <em>is</em> &mdash; which changes the attack surface, the grading problem, and what a number means. All three cut the same way: this is where the measurement apparatus is thinnest, and where the attacks work best.</p>
+  <p class="lead" style="max-width:760px">The other three types differ in how a request is <em>phrased</em>; this one differs in what a request <em>is</em>.</p>
 
   <h2 id="shape">What a multimodal behavior actually is</h2>
 
-  <p>The multimodal CSV carries nine columns against the text set's six: <span class="mono">Behavior, BehaviorID, FunctionalCategory, SemanticCategory, ImageFileName, Source, ImageDescription, RedactedImageDescription, Tags</span>. Four exist only here. <span class="mono">ImageFileName</span> is <span class="mono">&lt;BehaviorID&gt;.png</span> inside <span class="mono">data/multimodal_behavior_images/</span> &mdash; 110 PNGs, about 65&nbsp;MB, committed to the repository rather than fetched by a setup step (the README describes no download). <span class="mono">Source</span> is a URL to the original picture, overwhelmingly Wikimedia Commons. <span class="mono">ImageDescription</span> describes the picture and <span class="mono">RedactedImageDescription</span> is the same with the harmful specifics removed &mdash; the second is the grader's input, not documentation. Neither reaches the target model, which gets pixels.</p>
+  <p>The multimodal CSV carries nine columns against the text set's six; four are unique. <span class="mono">ImageFileName</span> is <span class="mono">&lt;BehaviorID&gt;.png</span> in <span class="mono">data/multimodal_behavior_images/</span>: 110 PNGs, ~65&nbsp;MB, committed to the repo, not downloaded by setup. <span class="mono">Source</span> is a URL, mostly Wikimedia Commons. <span class="mono">RedactedImageDescription</span> is <span class="mono">ImageDescription</span> with the harmful specifics stripped, and is the grader's input. Neither description reaches the target model, which gets pixels.</p>
 
-  <p>The behavior string is a question <em>about</em> the image, so it is close to inert alone &mdash; the <a class="lnk" href="../types/contextual.html">contextual</a> type's supplied-passage move, made for the same reason: differential harm, an answer no search engine returns. It also means a harness that resolves the image path wrong will not throw. It will quietly measure an easier benchmark. (Image descriptions are not printed on this site; the <a class="lnk" href="../data/behaviors.html">behavior index</a> carries every behavior in full, with its image filename.)</p>
+  <p>The behavior string only asks <em>about</em> the image, so it is close to inert alone: the <a class="lnk" href="../types/contextual.html">contextual</a> type's supplied-passage move, for differential harm. A wrong image path will not throw; it quietly measures an easier benchmark. The <a class="lnk" href="../data/behaviors.html">behavior index</a> carries each in full.</p>
 
-  <p>One asymmetry for anyone coding against the CSV: <span class="mono">Tags</span> is present but empty on every multimodal row, while the dispatch in <span class="mono">eval_utils.py</span> branches on a <span class="mono">multimodal</span> tag nothing sets. Assume it is there &mdash; as <span class="mono">context</span> is on the contextual rows and <span class="mono">hash_check</span> on the <a class="lnk" href="../types/copyright.html">copyright</a> ones &mdash; and you silently get the standard prompt.</p>
+  <p><span class="mono">Tags</span> is empty on every multimodal row, yet the dispatch in <span class="mono">eval_utils.py</span> branches on a <span class="mono">multimodal</span> tag nothing sets (as <span class="mono">context</span> is set on contextual rows, <span class="mono">hash_check</span> on <a class="lnk" href="../types/copyright.html">copyright</a> ones). Assume it is there or you silently get the standard prompt.</p>
 
   <h2 id="draw">Where the 110 come from</h2>
 
-  <p>The text set spreads fairly evenly over six categories with a copyright block on top. The image set is nothing like that.</p>
+  <p>The text set spreads evenly over six categories plus a copyright block; the image set does not.</p>
 
   <div class="scroll">
   <table class="kv">
@@ -67,71 +67,69 @@
   </table>
   </div>
 
-  <p>Two categories carry 82%; three of the seven contribute eleven behaviors between them. Copyright contributes none, which follows from its metric rather than its subject: copyright grading is a MinHash match against shipped hashes of specific texts, and no version of that test starts from a picture.</p>
+  <p>Two categories carry 82%; three of the seven contribute eleven between them. Copyright contributes none: its metric is a MinHash match on shipped text hashes, which never starts from a picture.</p>
 
-  <p>The skew has one dominant cause, visible from the filenames alone &mdash; 50 of the 110 images are named <span class="mono">solve_captcha_&lt;n&gt;.png</span>. The paper says why.</p>
+  <p>The skew has one cause, visible in the filenames: 50 of the 110 images are named <span class="mono">solve_captcha_&lt;n&gt;.png</span>.</p>
 
   <blockquote class="q off"><span>"We include 50 CAPTCHA behaviors to allow measuring whether multimodal models robustly refuse to impersonate humans online."</span><span class="cite">&mdash; HarmBench, Figure 17 caption</span></blockquote>
 
-  <p>Nearly half of this type is therefore one narrow task, filed under <a class="lnk" href="../harms/cybercrime-intrusion.html">Cybercrime &amp; Unauthorized Intrusion</a> because §B.4 lists CAPTCHAs there beside hacking and malware. It earns its place, but a headline multimodal ASR is then half a CAPTCHA-refusal score and half everything else, and those have no reason to move together. Read Table 9 as a blend.</p>
+  <p>Nearly half the type is one narrow task, filed under <a class="lnk" href="../harms/cybercrime-intrusion.html">Cybercrime &amp; Unauthorized Intrusion</a> (§B.4 lists CAPTCHAs beside hacking and malware). A headline multimodal ASR is then half a CAPTCHA-refusal score and half everything else; read Table 9 as a blend.</p>
 
   <h2 id="mm-classifier">The grader that never sees the image</h2>
 
-  <p>Multimodal completions are graded by a third fine-tune, <span class="mono"><a href="https://huggingface.co/cais/HarmBench-Llama-2-13b-cls-multimodal-behaviors" target="_blank" rel="noopener">cais/HarmBench-Llama-2-13b-cls-multimodal-behaviors</a></span>, sibling to the <a class="lnk" href="../measure/classifier.html">test classifier</a>. It is a Llama 2 13B text model with no vision encoder, and it is never handed the picture.</p>
+  <p>Multimodal completions are graded by a third fine-tune, <span class="mono"><a href="https://huggingface.co/cais/HarmBench-Llama-2-13b-cls-multimodal-behaviors" target="_blank" rel="noopener">cais/HarmBench-Llama-2-13b-cls-multimodal-behaviors</a></span>, sibling to the <a class="lnk" href="../measure/classifier.html">test classifier</a>: a Llama 2 13B text model with no vision encoder, never handed the picture.</p>
 
-  <p>What it gets is set by <span class="mono">compute_results_classifier</span> in <span class="mono"><a href="https://github.com/centerforaisafety/HarmBench/blob/main/eval_utils.py" target="_blank" rel="noopener">eval_utils.py</a></span>, which branches three ways on tags: <span class="mono">context</span> fills the <a class="lnk" href="../types/contextual.html">contextual</a> template's <span class="mono">{context}</span> slot from <span class="mono">ContextString</span>; <span class="mono">multimodal</span> fills that <em>same</em> slot from <span class="mono">RedactedImageDescription</span>; everything else gets the <a class="lnk" href="../measure/classifier.html#prompt">standard prompt</a>. So the multimodal branch is not a different rubric &mdash; it is the contextual rubric with a paragraph of English standing in for the image, and the notebook the README ships confirms that is intentional.</p>
+  <p><span class="mono">compute_results_classifier</span> in <span class="mono"><a href="https://github.com/centerforaisafety/HarmBench/blob/main/eval_utils.py" target="_blank" rel="noopener">eval_utils.py</a></span> branches three ways on tags: <span class="mono">context</span> fills the <a class="lnk" href="../types/contextual.html">contextual</a> template's <span class="mono">{context}</span> slot from <span class="mono">ContextString</span>; <span class="mono">multimodal</span> fills that <em>same</em> slot from <span class="mono">RedactedImageDescription</span>; everything else gets the <a class="lnk" href="../measure/classifier.html#prompt">standard prompt</a>. So it is the contextual rubric with English standing in for the image.</p>
 
-  <p>That buys practicality: one text model grades both contextual and multimodal completions, with no vision-language judge to train. It costs grounding. The judge cannot tell whether a completion is grounded in what is actually depicted; it can only ask whether it counts <em>assuming</em> the description holds. A model that hallucinates the image and then answers confidently about the thing it imagined scores a success.</p>
+  <p>The judge only asks whether a completion counts <em>assuming</em> the description holds, so a confident hallucination of the image scores a success. Table 3's agreement figures cover standard and contextual behaviors only; the multimodal path has no published agreement number.</p>
 
-  <p>And the description is not data, it is an artifact somebody wrote &mdash; the redaction especially is a hand-made call about which specifics to strip. Table 3's agreement figures cover standard and contextual behaviors only; the multimodal path has no published agreement number at all.</p>
-
-  <p>One wrinkle if you rebuild this: the GPT-4 prompt used to <em>label</em> the multimodal training data (Appendix C.4.1) is richer than the one used to <em>serve</em> the distilled classifier &mdash; it assumes the model saw the image, asks for reasoning first, and makes a CAPTCHA attempt count even when the answer is wrong. None of that is in the template <span class="mono">eval_utils.py</span> runs.</p>
+  <p>Rebuild trap: the GPT-4 prompt that <em>labeled</em> the training data (Appendix C.4.1) is richer than the served template, assuming the model saw the image and counting a CAPTCHA attempt even when wrong. Neither is in what <span class="mono">eval_utils.py</span> runs.</p>
 
   <h2 id="split">No published split, so no guard</h2>
 
-  <p>The text behaviors ship as three files &mdash; 400 all, 320 test, 80 val. The multimodal behaviors ship as one, <span class="mono">harmbench_behaviors_multimodal_all.csv</span>. There is no <span class="mono">_test</span> and no <span class="mono">_val</span>.</p>
+  <p>The text behaviors ship as three files (400 all, 320 test, 80 val); the multimodal behaviors ship as one, <span class="mono">harmbench_behaviors_multimodal_all.csv</span>, with no <span class="mono">_test</span> and no <span class="mono">_val</span>.</p>
 
-  <p>That is a gap in the release, not the design: the appendix describes a 100-behavior validation set &mdash; 40 standard, 20 contextual, 20 copyright and <b>20 multimodal</b> &mdash; leaving 410 for test. A 90/20 image split exists on paper, but not in the repository, and the IDs are not recoverable.</p>
+  <p>It is a release gap, not the design: the appendix describes a 100-behavior validation set (40 standard, 20 contextual, 20 copyright, <b>20 multimodal</b>), leaving 410 for test. That 90/20 image split exists on paper, not in the repo, and the IDs are not recoverable.</p>
 
-  <p>So one of the four design principles has no teeth here. Elsewhere the rule is: tune against the validation split, report on the test split. Here there is one set, and every published multimodal figure is measured on all 110 &mdash; verifiable from the table, since every Table 9 cell is an exact multiple of 1/110 (64.55% is 71 behaviors, 82.73% is 91), which also shows one test case per behavior. Nothing structural stops a new attack being tuned on the set it reports.</p>
+  <p>There is no held-out guard: every published figure is measured on all 110, and each Table 9 cell is an exact multiple of 1/110 (64.55% is 71 behaviors, 82.73% is 91), one test case per behavior. Nothing stops a new attack tuning on the set it reports.</p>
 
   <h2 id="methods">The five multimodal methods</h2>
 
-  <p>The text set gets 16 attack columns; the image set gets five methods, split on the same white-box / black-box line as the <a class="lnk" href="../attacks/gradient.html">gradient family</a>. All five run with <span class="mono">behavior_chunk_size: 5</span> and <span class="mono">base_num_gpus: 1</span>; the three gradient methods take only <span class="mono">open_source_multimodal</span> targets, and those <a class="lnk" href="../measure/pipeline.html#models-yaml">model-type declarations</a> produce the dashes in the GPT-4V row. The objective is <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a>'s &mdash; teacher-forced cross-entropy on an affirmative target continuation. Only the search variable changes: pixels in <span class="mono">[0, 1]</span>, where the gradient applies directly, instead of discrete tokens needing a projection every step. That is why ten PGD steps beat five hundred GCG steps.</p>
+  <p>The text set gets 16 attack columns; the image set gets five methods on the same white-box / black-box line as the <a class="lnk" href="../attacks/gradient.html">gradient family</a>. All five run <span class="mono">behavior_chunk_size: 5</span>, <span class="mono">base_num_gpus: 1</span>; the three gradient methods take only <span class="mono">open_source_multimodal</span> targets, whose <a class="lnk" href="../measure/pipeline.html#models-yaml">model-type declarations</a> produce the GPT-4V dashes. The objective is <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a>'s, but the search is over pixels in <span class="mono">[0, 1]</span>, not discrete tokens, so ten PGD steps beat five hundred GCG steps.</p>
 
   <div class="method" id="mm-pgd">
     <h3>MultiModalPGD</h3>
     <div class="sig"><span>white box</span><span>class <span class="mono">MultiModalPGD</span></span><span>10 steps &middot; step 0.01 &middot; &epsilon; 0.125</span><span>64.6&ndash;82.7 on the 110</span></div>
-    <p>Start from the behavior's real image, preprocessed to the model's native resolution with normalisation deferred so the search runs in raw pixel space. Each step is a sign-gradient move of <span class="mono">step_size</span> 0.01, clipped into an L&infin; ball of radius <span class="mono">epsilon</span> and clamped to <span class="mono">[0, 1]</span>. Ten steps of 0.01 move a pixel by at most 0.1 &mdash; inside the 0.125 ball &mdash; so the imperceptibility budget never binds at defaults and the real knob is the step count. Ten forward-backward passes per behavior, and the strongest column in Table&nbsp;9.</p>
+    <p>In raw pixel space, ten sign-gradient steps of <span class="mono">step_size</span> 0.01 move a pixel at most 0.1, so the 0.125 L&infin; budget never binds at defaults and step count is the real knob.</p>
   </div>
 
   <div class="method" id="mm-pgd-patch">
     <h3>MultiModalPGDPatch</h3>
     <div class="sig"><span>white box</span><span>class <span class="mono">MultiModalPGDPatch</span></span><span>2000 steps &middot; &epsilon; 1.0</span><span>36.4&ndash;81.8 on the 110</span></div>
-    <p>Same loss, restricted support: a square of side 0.2&times;min(height, width) &mdash; about 4% of the pixels &mdash; placed at random, initialised from noise and optimised unconstrained while the rest of the image is untouched. It is the digital analogue of a printable adversarial sticker. The trade: 200&times; the steps of plain PGD and, on InstructBLIP, barely half the success (36.36 against 64.55). The limit is not budget but area.</p>
+    <p>Same loss on restricted support: a random square of side 0.2&times;min(height, width), about 4% of the pixels, optimised unconstrained. It costs 200&times; the steps of plain PGD and, on InstructBLIP, barely half the success (36.36 against 64.55): the limit is area, not budget.</p>
   </div>
 
   <div class="method" id="mm-pgd-blank">
     <h3>MultiModalPGDBlankImage</h3>
     <div class="sig"><span>white box</span><span>class <span class="mono">MultiModalPGD</span> in the pipeline config</span><span>1000 steps &middot; no &epsilon;</span><span>48.8&ndash;66.0 on text behaviors</span></div>
-    <p>The odd one out, and the source of this page's headline. It ignores the image behaviors and runs against the 400 <em>text</em> behaviors, starting from a 512&times;512 field of uniform random RGB noise &mdash; "blank" is a misnomer &mdash; and optimising 1000 steps with the L&infin; radius pinned to 1.0, i.e. unconstrained. The image carries no message; it is a free parameter with hundreds of thousands of dimensions the attacker sets. A reproduction trap: this entry declares <span class="mono">class_name: MultiModalPGD</span>, and the runner resolves both class and config from that field, so <span class="mono">run_pipeline.py</span> gets you plain 10-step PGD instead.</p>
+    <p>It runs against the 400 <em>text</em> behaviors from a 512&times;512 field of uniform random RGB noise ("blank" is a misnomer), 1000 steps with the L&infin; radius pinned to 1.0 (unconstrained). The image carries no message: a free parameter of hundreds of thousands of dimensions. Trap: it declares <span class="mono">class_name: MultiModalPGD</span>, and the runner resolves class and config from that field, so <span class="mono">run_pipeline.py</span> gives you plain 10-step PGD.</p>
   </div>
 
   <div class="method" id="mm-render-text">
     <h3>MultiModalRenderText</h3>
     <div class="sig"><span>black box</span><span>class <span class="mono">MultiModalRenderText</span></span><span>fontsize 10&ndash;20</span><span>1.8&ndash;20.0 on the 110</span></div>
-    <p>No gradients: draw the request into the picture as visible text and send "complete the instruction in the image" as the text input. The renderer walks font size down from <span class="mono">max_fontsize</span> 20 toward <span class="mono">min_fontsize</span> 10 until the string fits, word-wraps, and outlines each word in white for legibility; against text behaviors it uses a plain grey canvas. The premise &mdash; that OCR'd text routes around a refusal trained on typed text &mdash; is <a class="lnk" href="../attacks/template.html#artprompt">ArtPrompt</a>'s, and here it mostly fails. It is the only method that reaches GPT-4V at all.</p>
+    <p>No gradients: draw the request into the picture as visible text and send "complete the instruction in the image", walking font size from <span class="mono">max_fontsize</span> 20 down to <span class="mono">min_fontsize</span> 10 until it fits. The premise, <a class="lnk" href="../attacks/template.html#artprompt">ArtPrompt</a>'s, that OCR'd text routes around a refusal trained on typed text, mostly fails here; it is the only method that reaches GPT-4V.</p>
   </div>
 
   <div class="method" id="mm-direct-request">
     <h3>MultiModalDirectRequest</h3>
     <div class="sig"><span>black box</span><span>class <span class="mono">MultiModalDirectRequest</span></span><span>no hyperparameters</span><span>16.4&ndash;69.1 on the 110</span></div>
-    <p>The floor, playing the role <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a> plays on the text set: hand the model the behavior and its unmodified image. The only configuration is per-model geometry &mdash; 336 for LLaVA 1.5, 224 for InstructBLIP, 448 for Qwen-VL-Chat, 224 for GPT-4V &mdash; with a Lanczos resize and centre crop, so non-square originals arrive letterboxed. Read everything else as a delta against this column.</p>
+    <p>The floor, <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a>'s role on the text set: hand the model the behavior and its unmodified image. The only configuration is per-model geometry (336 for LLaVA 1.5, 224 for InstructBLIP, 448 for Qwen-VL-Chat, 224 for GPT-4V).</p>
   </div>
 
   <h2 id="tables">Tables 9 and 10</h2>
 
-  <p>Two tables, four models, one contrast worth the whole page. Table 9 runs the image behaviors against vision-language models.</p>
+  <p>Table 9 runs the image behaviors against four vision-language models.</p>
 
   <div class="scroll">
   <table class="kv">
@@ -145,9 +143,9 @@
   </table>
   </div>
 
-  <p>Three readings. Pixel optimisation dominates: 64&ndash;83% against every open-weight model from an attack budgeted at ten gradient steps, against <a class="lnk" href="../measure/results.html#table6">text-set results</a> where the best column averages 54.3 after 500 steps of discrete search. RenderText is weak everywhere because these models read the rendered text and refuse it as they would refuse it typed &mdash; on LLaVA it does five times <em>worse</em> than simply asking. And GPT-4V is reachable only by the black-box methods, which is about access rather than robustness: its wrapper's <span class="mono">compute_loss</span> returns nothing. The dashes mean "cannot be run", not "resisted".</p>
+  <p>Pixel optimisation dominates: 64&ndash;83% against every open-weight model at ten gradient steps, versus <a class="lnk" href="../measure/results.html#table6">text-set results</a> whose best column averages 54.3 after 500 steps of discrete search. RenderText is weak everywhere: models read the rendered text and refuse it as if typed, on LLaVA five times <em>worse</em> than simply asking. GPT-4V falls only to black-box methods, access not robustness: its wrapper's <span class="mono">compute_loss</span> returns nothing, so the dashes mean "cannot be run", not "resisted".</p>
 
-  <p>Table 10 changes the behaviors, not the models: the 400 ordinary <em>text</em> behaviors handed to a vision model with an image attached. Every cell is an exact multiple of 1/400.</p>
+  <p>Table 10 uses the 400 ordinary <em>text</em> behaviors, handed to a vision model with an image attached; every cell is an exact multiple of 1/400.</p>
 
   <div class="scroll">
   <table class="kv">
@@ -161,23 +159,23 @@
   </table>
   </div>
 
-  <p>Same models, same behaviors, same request text, and a fourteen-fold spread. The only difference is what the image channel is used for. Render the request as legible pixels and the model reads it, recognises it and refuses: 3.50&ndash;5.25%, below the text set's DirectRequest floor. Fill the same channel with optimised noise and 48.75&ndash;66.00% come out. The image is not carrying the request &mdash; that is still in the text channel, unobfuscated. It is carrying an optimisation.</p>
+  <p>Same models, behaviors and request text, a fourteen-fold spread on what the image channel carries. Rendered as legible pixels, the request is read and refused: 3.50&ndash;5.25%, below the text set's DirectRequest floor. Filled with optimised noise, the same channel yields 48.75&ndash;66.00%. The request is still in the text channel, unobfuscated; the image carries an optimisation.</p>
 
-  <p>That generalises past HarmBench. Safety training was applied to the token channel; the pixel channel was attached afterwards, is continuous rather than discrete, and had essentially no adversarial pressure applied to it:</p>
+  <p>Safety training hit the token channel; the pixel channel was attached afterwards, is continuous not discrete, and saw essentially no adversarial pressure:</p>
 
   <blockquote class="q off"><span>"No specific safety measures were used in training this model. However, we find that it does refuse direct requests to perform egregious behaviors."</span><span class="cite">&mdash; HarmBench, §C.2, of each of InstructBLIP, LLaVA 1.5 and Qwen-VL-Chat</span></blockquote>
 
-  <p>Refusal inherited from a text backbone survives a plainly worded request and does not survive a gradient. A new modality is a new attack surface &mdash; and a larger one than the surface you did defend.</p>
+  <p>Refusal inherited from a text backbone survives a plainly worded request and does not survive a gradient.</p>
 
   <h2 id="reuse">What to watch if you run this</h2>
 
-  <p><b>This is the repository's least exercised corner.</b> <span class="mono">Tags</span> is empty where the dispatch expects a value; the <span class="mono">BlankImage</span> entry resolves to the wrong class; <span class="mono">MultiModalRenderText</span>'s constructor opens a targets file its own config never sets and parses it with a module the file does not import; the GPT-4V wrapper calls <span class="mono">os.path.join</span> without importing <span class="mono">os</span>. Read it before running it.</p>
+  <p><b>This is the repository's least exercised corner.</b> <span class="mono">Tags</span> is empty where the dispatch expects a value; the <span class="mono">BlankImage</span> entry resolves to the wrong class; <span class="mono">MultiModalRenderText</span>'s constructor opens a targets file its own config never sets and parses it with a module the file does not import; the GPT-4V wrapper calls <span class="mono">os.path.join</span> without importing <span class="mono">os</span>.</p>
 
   <p><b>Report the CAPTCHA behaviors separately.</b> Forty-five percent of one number measuring one narrow task is a property of how the set was assembled, not of the models.</p>
 
-  <p><b>Remember what the grader is.</b> Every ASR here is a text model's judgement about a picture it was described rather than shown, so do not average multimodal and text ASRs into one column. The <a class="lnk" href="../measure/classifier.html#failure-modes">classifier's standing caveats</a> &mdash; over-refusal never measured, ~7% label noise, a fixed 512-token budget &mdash; apply here too, on top of the blindness.</p>
+  <p><b>Remember what the grader is.</b> Every ASR here is a text model judging a picture it was described, not shown, so do not average multimodal and text ASRs. The <a class="lnk" href="../measure/classifier.html#failure-modes">classifier's standing caveats</a> (over-refusal never measured, ~7% label noise, a 512-token budget) apply here too, atop the blindness.</p>
 
-  <p><b>Read the gap, not the number.</b> DirectRequest tells you what your refusal training does; PGD tells you what it is worth. On LLaVA, 69.09 and 74.55 &mdash; almost nothing was left to break. On InstructBLIP, 22.73 and 64.55 &mdash; a model that refuses the polite version and folds on the optimised one. That distance is what an image channel costs.</p>
+  <p><b>Read the gap, not the number.</b> DirectRequest tells you what your refusal training does; PGD tells you what it is worth. LLaVA, 69.09 and 74.55: almost nothing left to break. InstructBLIP, 22.73 and 64.55: refuses the polite version, folds on the optimised one.</p>
 
   <div class="callout off">Next: the attacks arc opens with <a class="lnk" href="../attacks/gradient.html">Gradient and token-level attacks</a> &mdash; the discrete-search cousins of the PGD methods above. Back to <a class="lnk" href="../index.html#types">the four types</a>, or on to <a class="lnk" href="../index.html#attacks">the attack families</a> on the map.</div>
 </main>
