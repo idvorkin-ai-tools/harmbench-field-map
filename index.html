@@ -61,6 +61,8 @@
       <b>The thing everyone asks first: is it a benchmark or a recipe?</b> Both, and the split is clean. The behaviors, the classifier and the copyright hashes are frozen artifacts you download. The <b>attack prompts do not exist until you generate them</b> against your specific target model &mdash; one set per attack &times; model pair, which is where the GPU hours go. That is why it reads like a recipe: the expensive half of the benchmark is compute, not data.
     </div>
 
+    <p class="progress" style="margin:0 0 4px">Every behavior has a permalink: <span class="mono">data/behaviors.html#&lt;BehaviorID&gt;</span> jumps to that row, and the row deep-links the exact line of the source CSV on GitHub &mdash; so an ID here always leads to the behavior text at its source, which this site does not reproduce.</p>
+
     <div class="facts">
       <div class="fact"><div class="k">Browse the harms</div><div class="v"><a class="lnk" href="#harms">seven categories</a></div></div>
       <div class="fact"><div class="k">Every behavior ID</div><div class="v"><a class="lnk" href="data/behaviors.html">all 510, filterable</a></div></div>
@@ -111,7 +113,7 @@
   <section id="refs">
     <div class="arc-head"><span class="idx">05</span><h2>Data and sources</h2></div>
     <div class="links">
-      <a href="data/behaviors.html"><b>All 510 behavior IDs</b><span>Every ID with its category, functional type and split, filterable, each row linking to its harm page. IDs and categories only &mdash; no behavior text.</span></a>
+      <a href="data/behaviors.html"><b>All 510 behavior IDs</b><span>Every ID with its category, functional type and split, filterable, each row linking to its harm page. IDs and metadata only &mdash; no behavior text &mdash; but every row deep-links its source line on GitHub.</span></a>
       <a href="sources.html"><b>Sources, verified</b><span>Every file, table and URL this map draws on, with what each one does and does not establish, and the discrepancies between the repo and the paper</span></a>
       <a href="https://github.com/centerforaisafety/HarmBench" target="_blank" rel="noopener"><b>centerforaisafety/HarmBench</b><span>The repository: behaviors, method implementations, configs, evaluation pipeline, adversarial training code</span></a>
       <a href="https://arxiv.org/abs/2402.04249" target="_blank" rel="noopener"><b>arXiv:2402.04249</b><span>Mazeika et al., <em>HarmBench: A Standardized Evaluation Framework for Automated Red Teaming and Robust Refusal</em> (v2, 2024-02-27)</span></a>
@@ -122,7 +124,7 @@
 
   <section id="safety">
     <div class="arc-head"><span class="idx">06</span><h2>What this map does not contain</h2></div>
-    <p class="arc-sub" style="max-width:760px">No page here reproduces a behavior string, a context passage, a jailbreak template, or a working adversarial suffix. Attack pages explain mechanisms and cite the papers; they do not carry prompts. Behaviors are named by their IDs &mdash; which are public in the repo &mdash; and described at the level of what they ask for, not what they say. That is enough to read the benchmark and to reason about a result, and it is deliberately not enough to run an attack from this site.</p>
+    <p class="arc-sub" style="max-width:760px">No page here reproduces a behavior string, a context passage, a jailbreak template, or a working adversarial suffix. What it does instead is point: every <span class="mono">BehaviorID</span> is a permalink into <a class="lnk" href="data/behaviors.html">the index</a>, and every index row deep-links the line of the published CSV the behavior lives on, so the text is always one click away at its source and never a copy here. Attack pages explain mechanisms and cite the papers; they do not carry prompts. Behaviors are named by their IDs &mdash; which are public in the repo &mdash; and described at the level of what they ask for, not what they say. That is enough to read the benchmark and to reason about a result, and it is deliberately not enough to run an attack from this site.</p>
   </section>
 </main>
 <footer>

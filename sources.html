@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sources, verified &mdash; HarmBench, mapped</title>
+<meta name="description" content="Every paper section, repository file, model artifact and cited paper this HarmBench map rests on, what each does and does not establish, and where repo and paper disagree." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="paper.css" />
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <div class="brand"><span class="dot"></span>HARMBENCH&nbsp;//&nbsp;FIELD&nbsp;MAP</div>
+  <a class="back" href="index.html">&larr; field map</a>
+</div></header>
+<main>
+  <div class="eyebrow"><span class="box bb mono">PROVENANCE</span><span class="mono">1 paper (v2) &middot; 1 repo @ main &middot; 33 URLs checked, 32 live &middot; 4 discrepancies</span></div>
+  <h1>Sources, verified</h1>
+  <div class="authors">What each source establishes, what it does not, and the four places where the repository and the paper do not line up.</div>
+
+  <div class="tldr"><b>TL;DR &mdash;</b> Three bodies of evidence carry this map: arXiv:2402.04249v2 for the design argument and every reported number, the HarmBench repository at <span class="mono">main</span> for every count and every mechanism, and the artifacts that ship separately from both (three classifiers on Hugging Face, a 10.4&nbsp;GB results archive on Zenodo). Counts on this site were <em>parsed from the shipped CSVs</em> rather than copied out of the paper &mdash; they agree, which is itself a check. Results were read from the v2 HTML tables, never from the figures. Four repo/paper mismatches are documented below with their evidence, one of which is a printed table row that cannot be reconciled with its own cells.</div>
+
+  <div class="statgrid">
+    <div class="s"><div class="k">Paper</div><div class="v">v2</div><div class="n">arXiv:2402.04249, 2024-02-27</div></div>
+    <div class="s"><div class="k">Repo</div><div class="v">main</div><div class="n">cloned 2026-09-08</div></div>
+    <div class="s"><div class="k">URLs checked</div><div class="v">33</div><div class="n">32 &times; HTTP 200</div></div>
+    <div class="s"><div class="k">Discrepancies</div><div class="v">4</div><div class="n">3 material, 1 cosmetic</div></div>
+  </div>
+
+  <p class="lead" style="max-width:760px">Every page on this site makes claims that a reader should be able to walk back to something checkable. This page is that walk-back. It is organised by artifact rather than by claim, because the useful question when you distrust a number is not &ldquo;which page said that&rdquo; but &ldquo;what was it read out of, and does that thing actually support it.&rdquo; For each source there are two columns of interest: what it establishes, and what people routinely assume it establishes but does not.</p>
+
+  <h2 id="paper">The paper</h2>
+
+  <p>Mazeika, Phan, Yin, Zou, Wang, Mu, Sakhaee, Li, Basart, Li, Forsyth and Hendrycks, <em>HarmBench: A Standardized Evaluation Framework for Automated Red Teaming and Robust Refusal</em>. <a class="lnk" href="https://arxiv.org/abs/2402.04249" target="_blank" rel="noopener">arXiv:2402.04249</a> &mdash; v1 submitted 2024-02-06, v2 2024-02-27. This map reads <a class="lnk" href="https://arxiv.org/html/2402.04249v2" target="_blank" rel="noopener">the v2 HTML</a>, because the HTML renders the result grids as machine-readable tables rather than as a typeset PDF, and because v2 is the version whose numbers the community cites. Where the two versions differ in a way that matters, this site follows v2 and says so.</p>
+
+  <p>The paper is not one artifact but two glued together: a benchmark-design argument (sections 3 and 4, appendix B) and an empirical comparison (section 6, appendix D). The design half is where the definitions live and is where most misreadings start; the empirical half is a wall of tables. Here is which piece of it supports what.</p>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>Section or table</th><th>What it establishes, and where this map uses it</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">&sect;3.1</td><td>The ASR definition &mdash; mean classifier label over a method&rsquo;s test cases for a behavior, with greedy decoding and a fixed 512-new-token budget. The single most load-bearing definition on the site; read on <a class="lnk" href="measure/pipeline.html">the pipeline page</a> and assumed by every number on <a class="lnk" href="measure/results.html">the results page</a>.</td></tr>
+    <tr><td class="mono">&sect;4.2</td><td>Curation of harmful behaviors: the design principles &mdash; breadth, <em>differential harm</em> (prefer behaviors a search engine does not already answer), dual-intent handling, and comparability. This is why the benchmark looks the way it does.</td></tr>
+    <tr><td class="mono">&sect;5</td><td>R2D2: the adversarial-training method itself &mdash; the refreshed pool of GCG test cases, the &ldquo;toward&rdquo; and &ldquo;away&rdquo; losses, and the training loop folded into Zephyr&rsquo;s SFT code. See <a class="lnk" href="measure/defenses.html#r2d2">defenses</a>.</td></tr>
+    <tr><td class="mono">&sect;6.3</td><td>R2D2&rsquo;s results in prose, including the comparison against the Llama 2 Chat family. Its quoted figures disagree slightly with the v2 tables &mdash; see <a class="lnk" href="#discrepancies">discrepancies</a>.</td></tr>
+    <tr><td class="mono">&sect;B.3</td><td>Supported threat models: no-access (transfer), query-access and parameter-access attacks; model-level versus system-level defenses; and the explicit decision to scope the large-scale comparison to model-level defenses only.</td></tr>
+    <tr><td class="mono">&sect;B.4</td><td>The seven semantic categories and their sub-bullets. The taxonomy quoted on each <a class="lnk" href="harms/copyright.html">harm page</a> comes from here, not from the CSV, which carries only the machine slug.</td></tr>
+    <tr><td class="mono">&sect;B.5.1</td><td>How the Llama 2 13B evaluation classifier was trained &mdash; template-generated completions, GPT-4-0613 labels, distillation, and the separate Mistral validation classifier fine-tuned on half the data. See <a class="lnk" href="measure/classifier.html">the grader</a>.</td></tr>
+    <tr><td class="mono">&sect;B.5.2</td><td>Why copyright is graded by hashing rather than by an LLM judge: works <em>inspired by</em> a copyrighted original are not reliably separable from attempts to reproduce it, so the benchmark measures only near-verbatim regurgitation. Underwrites <a class="lnk" href="types/copyright.html#hash-check">the copyright type page</a>.</td></tr>
+    <tr><td class="mono">Table&nbsp;3</td><td>Classifier agreement with human labels on 600 hand-labelled examples, against AdvBench, GPTFuzz, ChatGLM, Llama Guard and GPT-4. The ~93% figure &mdash; and therefore the ~7% label-noise caveat repeated across this site &mdash; comes from here. <a class="lnk" href="measure/classifier.html#agreement">Read.</a></td></tr>
+    <tr><td class="mono">Table&nbsp;4</td><td>The three prequalification sets, which is where you learn <em>how</em> the prior graders fail rather than just that they do: refusal-prefix heuristics call benign text harmful, and &ldquo;is this harmful?&rdquo; graders cannot tell a completion of the wrong behavior from a completion of the right one.</td></tr>
+    <tr><td class="mono">Table&nbsp;5</td><td>Dataset comparison against nine prior behavior sets. Establishes 510 unique behaviors and that HarmBench is the only one of the ten carrying both multimodal and contextual behaviors.</td></tr>
+    <tr><td class="mono">Table&nbsp;6</td><td>ASR on the all-behaviors slice &mdash; the 400 <em>text</em> behaviors, since the sub-table weights are 200&nbsp;+&nbsp;100&nbsp;+&nbsp;100 and the 110 multimodal behaviors are Table&nbsp;9 &mdash; with sub-tables for <a class="lnk" href="types/standard.html">standard</a>, <a class="lnk" href="types/contextual.html">contextual</a> and copyright. The main grid of <a class="lnk" href="measure/results.html#table6">the results page</a>, and the source of every attack-column average quoted on <a class="lnk" href="attacks/gradient.html">the attack pages</a>.</td></tr>
+    <tr><td class="mono">Table&nbsp;7</td><td>The same grid on the 320-behavior text test split. Used here as an independent check on Table 6, and it is what catches the copyright Average row.</td></tr>
+    <tr><td class="mono">Table&nbsp;8</td><td>The same grid on the 80-behavior validation split. Second check, same role.</td></tr>
+    <tr><td class="mono">Tables&nbsp;9&ndash;10</td><td>Multimodal ASR: table 9 on the 110 image behaviors, table 10 on text-only behaviors handed to a vision model. See <a class="lnk" href="types/multimodal.html">the multimodal type page</a>.</td></tr>
+    <tr><td class="mono">Table&nbsp;11</td><td>MT-Bench against average ASR for Zephyr, Mistral, Koala and Zephyr+R2D2 &mdash; the capability cost of the defense, and the only capability measurement in the paper.</td></tr>
+    <tr><td class="mono">Table&nbsp;12</td><td>Searchability: 20 sampled behaviors per dataset, 10-minute Google limit each. The empirical backing for the differential-harm principle.</td></tr>
+    <tr><td class="mono">Figures&nbsp;9&ndash;11</td><td>Per-semantic-category ASR, per-family category ASR, and standard-vs-contextual-vs-copyright ASR. <b>Figures only.</b> They carry claims in their captions, not numbers in a grid, and this map quotes the captions rather than eyeballing bar heights.</td></tr>
+  </tbody>
+  </table></div>
+
+  <h3>What the paper does not establish</h3>
+
+  <p><b>There is no per-semantic-category ASR table.</b> This is the single most consequential gap for anyone reading the map, and it is why six of the seven harm pages end with an honest shrug instead of a number. The category-level evidence is figures 9 and 10 and their captions: that copyright sits far below everything else, that the other six categories are roughly level on average, and that <em>which</em> category is easiest depends on the model family. That is all. Any per-category ranking you see quoted elsewhere with decimals attached was either read off a bar chart or invented.</p>
+
+  <p><b>Over-refusal is not measured anywhere.</b> No benign or false-refusal set ships, and none is evaluated. A model that refuses every input scores 0% ASR and looks like the most robust system in the paper. The one capability check in the whole work is table 11&rsquo;s MT-Bench column, and it covers four models &mdash; the paper&rsquo;s own defended model and three comparisons &mdash; not the 33-target grid.</p>
+
+  <p><b>System-level defenses are out of scope by construction.</b> Input filters, output classifiers, prompt cleansing and the rest of what actually sits in front of a deployed model are absent, and &sect;B.3 says why: a fixed set of attacks cannot fairly evaluate a defense that would call for its own adaptive attack.</p>
+
+  <blockquote class="q"><span>&ldquo;For simplicity of evaluation with a fixed set of attacks, we focus our large-scale comparison on model-level defenses, although future work could use HarmBench for evaluating system-level defenses.&rdquo;</span><span class="cite">&mdash; HarmBench, &sect;B.3</span></blockquote>
+
+  <p>Read as a limitation this is fair. Read as a result it is dangerous: nothing in this benchmark tells you how a <em>system</em> built around one of these models behaves.</p>
+
+  <h2 id="repo">The repository</h2>
+
+  <p><a class="lnk" href="https://github.com/centerforaisafety/HarmBench" target="_blank" rel="noopener">github.com/centerforaisafety/HarmBench</a>, branch <span class="mono">main</span>, cloned 2026-09-08. Everything mechanical on this site &mdash; counts, tags, splits, config defaults, the grading dispatch, the class list &mdash; was read out of the working tree rather than out of the paper&rsquo;s prose. Where the two could be compared they agreed, which is the cheapest available check on both.</p>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>File or directory</th><th>What it establishes here</th></tr></thead>
+  <tbody>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/tree/main/data/behavior_datasets" target="_blank" rel="noopener">data/behavior_datasets/*.csv</a></td><td>Every count on this site: 510 total, 400 text and 110 multimodal, the 320/80 test/val split, the functional breakdown (200 standard, 100 contextual, 100 copyright), the seven semantic-category totals, and the fact that exactly two tags exist &mdash; <span class="mono">context</span> on the 100 contextual rows, <span class="mono">hash_check</span> paired with <span class="mono">book</span> or <span class="mono">lyrics</span> on the 100 copyright rows. Parsed, not quoted.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/eval_utils.py" target="_blank" rel="noopener">eval_utils.py</a></td><td>The whole grading layer. <span class="mono">LLAMA2_CLS_PROMPT</span> at lines 309&ndash;357 is the judging rubric reproduced verbatim on <a class="lnk" href="measure/classifier.html#prompt">the classifier page</a>. <span class="mono">compute_results_classifier</span> (~396) is the three-way dispatch on tags. <span class="mono">compute_results_hashing</span> (~367) is the MinHash path, with <span class="mono">compute_hashes_with_sliding_window</span> (~223) supplying the 300/200 and 50/40 window sizes and <span class="mono">check_output_with_sliding_window</span> (~247) the 0.6 Jaccard threshold. <span class="mono">compute_results_advbench</span> (~359) is the refusal-prefix metric, kept for comparison and explicitly not the HarmBench metric.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/api_models.py" target="_blank" rel="noopener">api_models.py</a></td><td>The five closed-model wrappers &mdash; <span class="mono">GPT</span>, <span class="mono">GPTV</span>, <span class="mono">Claude</span>, <span class="mono">Gemini</span>, <span class="mono">Mistral</span> &mdash; and that dispatch is by model-name prefix. Also the snag on <a class="lnk" href="measure/pipeline.html#api-only">the pipeline page</a>: the OpenAI client is constructed with no <span class="mono">base_url</span>, so pointing HarmBench at an OpenAI-compatible endpoint that is not OpenAI is a code change, not a config change.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/configs/pipeline_configs/run_pipeline.yaml" target="_blank" rel="noopener">configs/pipeline_configs/run_pipeline.yaml</a></td><td>The runner&rsquo;s view of every method: <span class="mono">class_name</span>, <span class="mono">experiment_name_template</span>, <span class="mono">behavior_chunk_size</span>, <span class="mono">base_num_gpus</span>, <span class="mono">run_ids</span>, and the <span class="mono">allowed_target_model_types</span> field that decides which attacks may point at which class of model. 24 active entries, with <span class="mono">HumanJailbreaks-all</span> and <span class="mono">PAP-avg</span> commented out as too expensive on closed models.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/tree/main/configs/method_configs" target="_blank" rel="noopener">configs/method_configs/*.yaml</a></td><td>21 files; every hyperparameter quoted on <a class="lnk" href="attacks/gradient.html">the attack pages</a> &mdash; step counts, search widths, batch sizes, mutation rates, attacker-model choices, query budgets.</td></tr>
+    <tr><td class="mono">configs/model_configs/models.yaml</td><td>26 top-level target entries and the <span class="mono">model_type</span> field (<span class="mono">open_source</span>, <span class="mono">closed_source</span>, <span class="mono">open_source_multimodal</span>, <span class="mono">closed_source_multimodal</span>) that gates attacks against targets. See <a class="lnk" href="measure/pipeline.html#models-yaml">the pipeline page</a>.</td></tr>
+    <tr><td class="mono">baselines/&lt;method&gt;/</td><td>The 18 method implementations. Read for mechanism &mdash; what is searched over, what the objective is, what one step costs &mdash; and never quoted.</td></tr>
+    <tr><td class="mono">adversarial_training/</td><td>R2D2&rsquo;s training code, built on <span class="mono">alignment-handbook</span>. Confirms the defense is an SFT-stage modification, not a separate system.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/docs/evaluation_pipeline.md" target="_blank" rel="noopener">docs/evaluation_pipeline.md</a></td><td>The four steps and the <span class="mono">--step</span> / <span class="mono">--mode</span> flags. Backs <a class="lnk" href="measure/pipeline.html#steps">the pipeline page</a>.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/docs/configs.md" target="_blank" rel="noopener">docs/configs.md</a></td><td>How the config expansion works &mdash; method configs crossed with model configs into experiments.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/docs/behavior_datasets.md" target="_blank" rel="noopener">docs/behavior_datasets.md</a></td><td>The CSV schemas, including that <span class="mono">ContextString</span> is a first-class column and not an optional extra. See <a class="lnk" href="types/contextual.html#contextstring">contextual behaviors</a>.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/blob/main/docs/codebase_structure.md" target="_blank" rel="noopener">docs/codebase_structure.md</a></td><td>Where each moving part lives; used to navigate rather than cited.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/tree/main/baselines" target="_blank" rel="noopener">baselines/</a> (index)</td><td>The directory listing itself is evidence: 18 attack packages plus <span class="mono">baseline.py</span> and shared refusal-checking utilities, which is how the method families on <a class="lnk" href="attacks/template.html">the attack pages</a> were grouped.</td></tr>
+  </tbody>
+  </table></div>
+
+  <div class="safety"><b>What was deliberately not read, and is not reproduced anywhere on this site.</b> The <span class="mono">Behavior</span> and <span class="mono">ContextString</span> columns of the behavior CSVs; the contents of <span class="mono">data/optimizer_targets/</span>; the template text in <span class="mono">baselines/human_jailbreaks/</span>; the seed prompts in <span class="mono">baselines/gptfuzz/GPTFuzzer.csv</span>; the persuasion templates in <span class="mono">baselines/pap/</span>. Counts, tags, splits and file shapes were taken from those files without their text ever being read into the map. Behaviors on this site are named by the <span class="mono">BehaviorID</span> slugs that are already public in the repository, and described at the level of intent. That is why <a class="lnk" href="data/behaviors.html">the behavior index</a> lists 510 IDs and no behavior strings.</div>
+
+  <h2 id="models">Models, archives and the project site</h2>
+
+  <p>Three things ship outside the repository, and one of them is where you have to go if you want anything the paper did not tabulate.</p>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>Artifact</th><th>What it is, and what it settles</th></tr></thead>
+  <tbody>
+    <tr><td class="mono"><a class="lnk" href="https://huggingface.co/cais/HarmBench-Llama-2-13b-cls" target="_blank" rel="noopener">cais/HarmBench-Llama-2-13b-cls</a></td><td>The test classifier. A Llama 2 13B Chat fine-tune distilled from GPT-4-0613 labels; ~93% agreement with humans. This is the grader every reported ASR on this site was produced by, and the one you must never optimise against.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://huggingface.co/cais/HarmBench-Mistral-7b-val-cls" target="_blank" rel="noopener">cais/HarmBench-Mistral-7b-val-cls</a></td><td>The validation classifier, Mistral 7B base, trained on half the test classifier&rsquo;s data; 88.6% agreement. The one you <em>should</em> tune against. The two disagree on 26 examples of the human-labelled set.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://huggingface.co/cais/HarmBench-Llama-2-13b-cls-multimodal-behaviors" target="_blank" rel="noopener">&hellip;-cls-multimodal-behaviors</a></td><td>The multimodal grader. Establishes that image behaviors are judged from the <span class="mono">RedactedImageDescription</span> text, never from the image &mdash; see <a class="lnk" href="types/multimodal.html#mm-classifier">the multimodal page</a>.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://zenodo.org/records/10714577" target="_blank" rel="noopener">zenodo.org/records/10714577</a></td><td>&ldquo;HarmBench Results (1.0)&rdquo;, a single 10.4&nbsp;GB zip published 2024-02-27: the generated test cases, the completions and the per-test-case labels behind every table in the paper. <b>This is where anyone who wants per-semantic-category numbers has to go</b> &mdash; the labels are per behavior, so a category breakdown is a group-by away, but it is not published in either the paper or the repo. It is also the only way to reproduce the reported grid without paying the GPU cost of regenerating test cases.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://github.com/centerforaisafety/HarmBench/pull/19" target="_blank" rel="noopener">HarmBench PR #19</a></td><td>The 1.0 release. Useful as a boundary marker: it dates the state of the code the paper&rsquo;s numbers came from, against the <span class="mono">main</span> read here.</td></tr>
+    <tr><td class="mono"><a class="lnk" href="https://www.harmbench.org/" target="_blank" rel="noopener">harmbench.org</a></td><td>The project site &mdash; leaderboard framing and pointers. Nothing on this map depends on it; it is listed because it is the canonical landing page.</td></tr>
+  </tbody>
+  </table></div>
+
+  <p>The Zenodo record answers browsers but returned <span class="mono">403</span> to the automated request made while compiling this page, with a body explaining the block is traffic-based rather than a missing record. Treat it as live.</p>
+
+  <h2 id="methods">Primary papers for the red teaming methods</h2>
+
+  <p>HarmBench implements 18 methods, but they are not 18 papers. Several table columns are variants of one method (GCG-Multi and GCG-Transfer are ensemble configurations of GCG; TAP-Transfer is TAP with a fixed attacker and judge), two are baselines HarmBench itself defines, and one entry in the grading tables is a classifier rather than an attack. Every arXiv identifier below was fetched and its title checked against the method it is claimed for. Grouped by the family pages that describe their mechanisms.</p>
+
+  <h3>Gradient and token-level &mdash; <a class="lnk" href="attacks/gradient.html">attacks/gradient</a></h3>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>Method</th><th>Primary paper</th><th>arXiv</th></tr></thead>
+  <tbody>
+    <tr><td><a class="lnk" href="attacks/gradient.html#gcg">GCG</a>, <a class="lnk" href="attacks/gradient.html#gcg-multi">GCG-Multi</a>, <a class="lnk" href="attacks/gradient.html#gcg-transfer">GCG-Transfer</a></td><td>Zou et al. 2023, <em>Universal and Transferable Adversarial Attacks on Aligned Language Models</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2307.15043" target="_blank" rel="noopener">2307.15043</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/gradient.html#autoprompt">AutoPrompt</a></td><td>Shin et al. 2020, <em>AutoPrompt: Eliciting Knowledge from Language Models with Automatically Generated Prompts</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2010.15980" target="_blank" rel="noopener">2010.15980</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/gradient.html#pez">PEZ</a></td><td>Wen et al. 2023, <em>Hard Prompts Made Easy: Gradient-Based Discrete Optimization for Prompt Tuning and Discovery</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2302.03668" target="_blank" rel="noopener">2302.03668</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/gradient.html#gbda">GBDA</a></td><td>Guo et al. 2021, <em>Gradient-based Adversarial Attacks against Text Transformers</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2104.13733" target="_blank" rel="noopener">2104.13733</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/gradient.html#uat">UAT</a></td><td>Wallace et al. 2019, <em>Universal Adversarial Triggers for Attacking and Analyzing NLP</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/1908.07125" target="_blank" rel="noopener">1908.07125</a></td></tr>
+  </tbody>
+  </table></div>
+
+  <p>Two of these predate the jailbreaking literature entirely &mdash; UAT is 2019 and AutoPrompt 2020, both written about model analysis and prompt discovery rather than safety. Their appearance as red teaming baselines is HarmBench&rsquo;s framing, not the original authors&rsquo;.</p>
+
+  <h3>LLM-optimizer &mdash; <a class="lnk" href="attacks/llm-optimizer.html">attacks/llm-optimizer</a></h3>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>Method</th><th>Primary paper</th><th>arXiv</th></tr></thead>
+  <tbody>
+    <tr><td><a class="lnk" href="attacks/llm-optimizer.html#autodan">AutoDAN</a></td><td>Liu et al. 2023, <em>AutoDAN: Generating Stealthy Jailbreak Prompts on Aligned Large Language Models</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2310.04451" target="_blank" rel="noopener">2310.04451</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/llm-optimizer.html#pair">PAIR</a></td><td>Chao et al. 2023, <em>Jailbreaking Black Box Large Language Models in Twenty Queries</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2310.08419" target="_blank" rel="noopener">2310.08419</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/llm-optimizer.html#tap">TAP</a>, <a class="lnk" href="attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a></td><td>Mehrotra et al. 2023, <em>Tree of Attacks: Jailbreaking Black-Box LLMs Automatically</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2312.02119" target="_blank" rel="noopener">2312.02119</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/llm-optimizer.html#gptfuzz">GPTFuzz</a></td><td>Yu et al. 2023, <em>GPTFUZZER: Red Teaming Large Language Models with Auto-Generated Jailbreak Prompts</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2309.10253" target="_blank" rel="noopener">2309.10253</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/llm-optimizer.html#pap-top5">PAP-top5</a></td><td>Zeng et al. 2024, <em>How Johnny Can Persuade LLMs to Jailbreak Them: Rethinking Persuasion to Challenge AI Safety by Humanizing LLMs</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2401.06373" target="_blank" rel="noopener">2401.06373</a></td></tr>
+  </tbody>
+  </table></div>
+
+  <p>The paper is explicit that these are not always the original implementations: where a method used a closed model as its attacker or judge, HarmBench substitutes Mixtral 8x7B to make the compute comparable across the grid, and it uses the in-context version of PAP because the fine-tuned paraphraser is not public. Both substitutions can lower a method&rsquo;s measured ASR relative to its own paper. Any comparison between a HarmBench column and a number from the method&rsquo;s own paper has to account for that.</p>
+
+  <h3>Template, few-shot and human &mdash; <a class="lnk" href="attacks/template.html">attacks/template</a></h3>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>Method</th><th>Primary paper</th><th>arXiv</th></tr></thead>
+  <tbody>
+    <tr><td><a class="lnk" href="attacks/template.html#zeroshot">ZeroShot</a>, <a class="lnk" href="attacks/template.html#sfs">Stochastic Few-Shot</a></td><td>Perez et al. 2022, <em>Red Teaming Language Models with Language Models</em> &mdash; the paper HarmBench reimplements these two from, with acknowledged modifications (an adjusted zero-shot prompt, an iterative SFS)</td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2202.03286" target="_blank" rel="noopener">2202.03286</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/template.html#human-jailbreaks">Human Jailbreaks</a></td><td>Shen et al. 2023a, <em>&ldquo;Do Anything Now&rdquo;: Characterizing and Evaluating In-The-Wild Jailbreak Prompts on Large Language Models</em> &mdash; the in-the-wild corpus the fixed template set is drawn from</td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2308.03825" target="_blank" rel="noopener">2308.03825</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/template.html#artprompt">ArtPrompt</a></td><td>Jiang et al. 2024, <em>ArtPrompt: ASCII Art-based Jailbreak Attacks against Aligned LLMs</em></td><td class="mono"><a class="lnk" href="https://arxiv.org/abs/2402.11753" target="_blank" rel="noopener">2402.11753</a></td></tr>
+    <tr><td><a class="lnk" href="attacks/template.html#directrequest">DirectRequest</a></td><td>No paper &mdash; a HarmBench baseline that sends the behavior unmodified. Its Table 6 average of 25.3 is the floor every other column should be read against.</td><td class="na">&ndash;</td></tr>
+  </tbody>
+  </table></div>
+
+  <p>One more citation belongs here but is not an attack. <em>Llama Guard</em> (Inan et al. 2023, <a class="lnk" href="https://arxiv.org/abs/2312.06674" target="_blank" rel="noopener">arXiv:2312.06674</a>) appears in tables 3 and 4 as one of the graders HarmBench&rsquo;s classifier is benchmarked against &mdash; and, in table 4&rsquo;s third prequalification set, as one of the graders that fails, because it answers &ldquo;is this harmful?&rdquo; when the question is &ldquo;is this <em>this behavior</em>?&rdquo; See <a class="lnk" href="measure/classifier.html#agreement">the grader page</a>.</p>
+
+  <h2 id="discrepancies">Where the sources disagree</h2>
+
+  <p>Four mismatches turned up while cross-checking the repository against the paper. Three are worth knowing about; the fourth is cosmetic but tells you something about how the multimodal split was assembled. None of them is hidden &mdash; the paper flags the mechanism behind the first one itself.</p>
+
+  <h3>1. The validation split: 40/20 in the paper, 41/19 in the CSV</h3>
+
+  <p>&sect;B.2 describes a 100-behavior validation set made of 20 multimodal, 20 contextual, 20 copyright and 40 standard behaviors. The shipped <span class="mono">harmbench_behaviors_text_val.csv</span> has 80 text rows: <b>41 standard, 19 contextual, 20 copyright</b>. One behavior sits on the other side of the standard/contextual line from where the paper&rsquo;s description puts it. The paper&rsquo;s own account of how the split was made explains it:</p>
+
+  <blockquote class="q"><span>&ldquo;These were selected with stratified sampling using the intersections between all functional behaviors and semantic categories, followed by manual adjustment to ensure the appropriate number of behaviors in each category.&rdquo;</span><span class="cite">&mdash; HarmBench, &sect;B.2</span></blockquote>
+
+  <p>The same paragraph adds that the split was drawn against an earlier version of the semantic categories, so the per-category validation percentages do not exactly match the final taxonomy either. The practical consequence is small &mdash; one behavior out of 80 &mdash; but it is a live example of the general rule this map follows: <b>when the CSV and the prose disagree about a count, the CSV is the benchmark.</b> The prose describes an intent; the file is what your harness will actually load.</p>
+
+  <h3>2. &sect;6.3&rsquo;s prose figures are not the table&rsquo;s figures</h3>
+
+  <p>Section 6.3 states R2D2&rsquo;s headline result by comparing it against the Llama 2 Chat family, quoting a GCG ASR of <span class="mono">31.8 &rarr; 5.9</span>. Neither number appears in the v2 tables. Table 6, the 400-behavior all-behaviors slice, gives Llama 2 7B Chat under GCG at <b>32.5</b> and Zephyr&nbsp;7B&nbsp;+&nbsp;R2D2 at <b>5.5</b>. Table 7, the 320-behavior test split, gives <b>31.9</b> and <b>6.3</b>. The prose pair matches neither slice: it takes the low end of one and the high end of the other.</p>
+
+  <p>The most likely reading is that the prose survived from an earlier revision of the tables and was not refreshed for v2 &mdash; the gap is within a point in each direction and the qualitative claim is unaffected. <b>This map uses the table figures throughout</b>, and prefers the all-behaviors slice unless a page says otherwise. If you are reproducing R2D2 numbers, do the same, and say which slice you are quoting: the difference between 5.5 and 6.3 is smaller than the classifier&rsquo;s own ~7% label noise, which is the real reason not to argue about it.</p>
+
+  <h3>3. The Table 6 copyright &ldquo;Average&rdquo; row is arithmetically impossible</h3>
+
+  <p>This is the one that matters. Table 6&rsquo;s Copyright Behaviors sub-table prints an Average row beginning <span class="mono">50.7 41.6 36.5 &hellip; 25.6</span>. Every individual cell in that sub-table lies between <b>0.0 and 28.0</b> &mdash; 386 cells across 30 model rows, checked. No set of values in that range averages to 50.7. Recomputing the column means from the grid gives numbers an order of magnitude smaller, and those recomputed means agree with the copyright averages the paper itself prints in tables 7 and 8:</p>
+
+  <div class="scroll"><table class="kv">
+  <thead><tr><th>Copyright column average</th><th class="num">GCG</th><th class="num">GCG-M</th><th class="num">GCG-T</th><th class="num">PEZ</th><th class="num">AutoDAN</th><th class="num">Human</th><th class="num">DR</th></tr></thead>
+  <tbody>
+    <tr><td>Table 6, <b>as printed</b> (all 510)</td><td class="num"><span class="hi">50.7</span></td><td class="num">41.6</td><td class="num">36.5</td><td class="num">28.2</td><td class="num">48.8</td><td class="num">26.2</td><td class="num">25.6</td></tr>
+    <tr><td>Table 6, recomputed from its cells</td><td class="num">4.6</td><td class="num">3.3</td><td class="num">4.3</td><td class="num">4.0</td><td class="num">6.0</td><td class="num">4.3</td><td class="num">7.3</td></tr>
+    <tr><td>Table 7, test split, as printed</td><td class="num">4.7</td><td class="num">3.5</td><td class="num">4.4</td><td class="num">4.2</td><td class="num">6.5</td><td class="num">4.6</td><td class="num">7.5</td></tr>
+    <tr><td>Table 8, validation split, as printed</td><td class="num">3.9</td><td class="num">2.9</td><td class="num">3.9</td><td class="num">3.3</td><td class="num">3.8</td><td class="num">3.2</td><td class="num">6.7</td></tr>
+  </tbody>
+  </table></div>
+
+  <p>The recomputed figures also reconcile the all-behaviors row exactly, which the printed ones cannot: weighting the three functional sub-tables by their sizes, <span class="mono">(200&times;69.1 + 100&times;74.8 + 100&times;4.6) / 400 = 54.3</span>, the printed GCG average. It works per model too &mdash; Llama 2 7B Chat under GCG, <span class="mono">(200&times;34.5 + 100&times;58.0 + 100&times;3.0) / 400 = 32.5</span>, matching its printed all-behaviors cell. Substitute the printed copyright average and nothing reconciles.</p>
+
+  <p><b>So the printed row is a typesetting error in v2, and this map reports the recomputed averages everywhere.</b> The full arithmetic, including the weighting check for several models, is on <a class="lnk" href="measure/results.html#discrepancy">the results page</a>. The finding also has a substantive consequence: with the correct numbers, attack success on <a class="lnk" href="harms/copyright.html">copyright behaviors</a> is near the floor for every method, which is exactly what &sect;B.5.2 predicts from a metric that only fires on near-verbatim regurgitation &mdash; and exactly what figure 9&rsquo;s caption claims. The erroneous row, taken at face value, would have made copyright look like an average category and quietly contradicted the paper&rsquo;s own text.</p>
+
+  <h3>4. The multimodal tag that is never set</h3>
+
+  <p>The smaller one. <span class="mono">compute_results_classifier</span> branches on a <span class="mono">multimodal</span> tag to decide whether to feed the classifier a <span class="mono">RedactedImageDescription</span> as context. The shipped multimodal CSV carries a <span class="mono">Tags</span> column with no values in it. The branch is therefore unreachable from the shipped data alone &mdash; multimodal evaluation runs must be tagging rows somewhere upstream of the classifier call, or supplying their own dataframe. It changes nothing about the reported results, but it is worth knowing if you are wiring your own multimodal behaviors into the pipeline: the shipped CSV will not take the branch you expect. See <a class="lnk" href="types/multimodal.html#mm-classifier">the multimodal page</a>.</p>
+
+  <h2 id="method-note">How this map was built</h2>
+
+  <p><b>Counts were parsed, not quoted.</b> Every number of behaviors on this site &mdash; per category, per functional type, per split, per tag &mdash; came from reading the shipped CSVs programmatically. None was copied from the paper. They match the paper&rsquo;s stated totals, with the single 41/19 exception documented above. This ordering is deliberate: a benchmark is the artifact people run, and where the artifact and its description differ, the artifact wins.</p>
+
+  <p><b>Results came from the arXiv v2 HTML tables</b>, extracted as grids and checked against each other. Where a figure and a table both bear on a claim, the table was used; where only a figure exists, the map quotes what the caption asserts and does not attempt to read values off the bars.</p>
+
+  <p><b>Per-category ASR is not available and is not invented anywhere on this site.</b> Six of the seven harm pages state plainly that the paper does not tabulate ASR by semantic category, name the figure-level claims that touch their category, and stop there. The seventh, copyright, has real numbers because copyright is also a functional type with its own sub-table &mdash; and those are the recomputed averages, not the printed row.</p>
+
+  <p><b>No behavior string, context passage, jailbreak template or adversarial suffix is reproduced on any page.</b> Behaviors are named by the <span class="mono">BehaviorID</span> slugs already public in the repository and described at the level of intent. Method pages explain mechanisms &mdash; what is searched over, what the loss is, what a step costs &mdash; and carry no payloads. The one verbatim block on the site is the classifier&rsquo;s judging rubric on <a class="lnk" href="measure/classifier.html#prompt">the grader page</a>, which is a grading instruction, not an attack. That constraint is the reason a few sections describe the <em>shape</em> of an example rather than showing one.</p>
+
+  <p><b>Every external URL printed on this page was checked with an HTTP request</b> at compile time: 33 URLs, 32 returning 200, and the Zenodo record returning a traffic-based 403 to automated clients while remaining live in a browser. Each cited arXiv identifier was fetched and its title compared against the method it is attributed to. Compiled 2026-09-08 against the repository at <span class="mono">main</span> and arXiv:2402.04249v2.</p>
+
+  <div class="callout">Next: <a class="lnk" href="index.html">back to the field map</a> &mdash; or jump to <a class="lnk" href="measure/results.html#discrepancy">the results page</a> for the copyright reconciliation in full, <a class="lnk" href="data/behaviors.html">the behavior index</a> for all 510 IDs, or the <a class="lnk" href="index.html#refs">sources section</a> of the spine.</div>
+</main>
+<footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. No behavior text, context passage or attack prompt is reproduced on this site.</footer>
+</body>
+</html>
