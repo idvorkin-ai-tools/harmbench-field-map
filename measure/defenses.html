@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -18,9 +20,11 @@
 <main>
   <div class="eyebrow"><span class="box bb mono">MEASURING &middot; 04 OF 04</span><span class="mono">Zephyr 7B + R2D2 &middot; GCG 69.5 &rarr; 5.5 &middot; TAP 66.5 &rarr; 60.8 &middot; 16 h on 8&times;A100</span></div>
   <h1>Defenses: R2D2 and the read-across caveat</h1>
-  <div class="authors">HarmBench's own R2D2 defense, what it costs, and why an ASR number describes an attack, not a model.</div>
+  <div class="authors">HarmBench's own R2D2 defense, what it costs, and why an <span class="term" data-term="attack-success-rate">ASR</span> number describes an attack, not a model.</div>
 
-  <div class="tldr"><b>TL;DR &mdash;</b> HarmBench ships a defense too: R2D2, adversarial training against a pool of <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> test cases re-optimised as the model changes. Zephyr 7B's GCG ASR falls 69.5 &rarr; 5.5, past Llama 2 13B Chat's 30.0, for 1.34 points of MT-Bench. Read the same row sideways: 48.0 under <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, 54.3 under <a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a>, 60.8 under <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a>. Training against a gradient adversary bought robustness to gradient adversaries. <b>An ASR number is a claim about the attack you ran, not about the model.</b></div>
+  <div class="tldr plain-only"><b>TL;DR &mdash;</b> HarmBench ships a defense too: R2D2, <span class="term" data-term="adversarial-training">adversarial training</span> against a pool of <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> test cases re-optimised as the model changes. Zephyr 7B's GCG ASR falls 69.5 &rarr; 5.5, past Llama 2 13B Chat's 30.0, for 1.34 points of <span class="term" data-term="mt-bench">MT-Bench</span>. Read the same row sideways: 48.0 under <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, 54.3 under <a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a>, 60.8 under <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a>. Training against a gradient adversary bought robustness to gradient adversaries. <b>An ASR number is a claim about the attack you ran, not about the model.</b></div>
+  <div class="tldr tech-only"><b>TL;DR &mdash;</b> R2D2 fine-tunes the SFT-only Zephyr 7B against a persistent pool of GCG test cases re-optimised as training proceeds, with a loss toward refusal and one away from the target string. GCG ASR falls 69.5 &rarr; 5.5 and the mean over the 16 columns 62.3 &rarr; 18.9, for MT-Bench 7.34 &rarr; 6.0. The gain is concentrated in the gradient family (UAT and GCG-Transfer reach 0.0) and nearly vanishes against LLM-driven search (PAIR 58.8 &rarr; 48.0, TAP 66.5 &rarr; 60.8).</div>
+  <div class="tldr eli5-only"><b>In short:</b> the HarmBench team trained one robot against one kind of trick until that trick almost never worked. When someone used a different kind of trick, the robot still fell for it most of the time.</div>
 
   <div class="statgrid">
     <div class="s"><div class="k">GCG ASR</div><div class="v">69.5&rarr;5.5</div><div class="n">12.6&times; lower; best model-level defense in the paper</div></div>
@@ -34,7 +38,7 @@
 
   <h2 id="r2d2">R2D2: adversarial training against an adversary that keeps moving</h2>
 
-  <p>Most defended models are trained once: assemble harmful prompts, fine-tune to refuse, ship. But the attacker optimises after you stop, and <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> searches token by token against <em>your specific weights</em>. Putting the attacker inside the training loop is the textbook fix, but unaffordable for LLMs: GCG needs about twenty minutes per test case against a 7B model on an A100. Earlier attempts froze the adversary and got disappointing results.</p>
+  <p>Most defended models are trained once: assemble harmful prompts, <span class="term" data-term="fine-tuning">fine-tune</span> to refuse, ship. But the attacker optimises after you stop, and <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> searches <span class="term" data-term="token">token</span> by token against <em>your specific weights</em>. Putting the attacker inside the training loop is the textbook fix, but unaffordable for LLMs: GCG needs about twenty minutes per test case against a 7B model on an A100. Earlier attempts froze the adversary and got disappointing results.</p>
 
   <p><b>Robust Refusal Dynamic Defense (R2D2)</b> borrows vision's fix, <em>persistent</em> adversarial examples: a standing pool of <b>180</b> test cases. Each iteration samples <b>8</b>, runs GCG <b>5</b> further steps to refresh them against the current weights, then takes a model step, so the attack is never solved from scratch nor fully stale. <b>20%</b> resets every <b>50</b> updates. Total: <b>500</b> steps, roughly <b>16 hours on an 8&times;A100 node</b>.</p>
 
@@ -81,9 +85,12 @@
     </tbody>
   </table></div>
 
+  <p class="lab-try"><b>Try this</b>Filter by family and toggle R2D2: the gradient bars collapse to near zero, the LLM-optimizer bars barely move, and the overall mean goes 62.3 &rarr; 18.9.</p>
+  <div class="lab" data-widget="r2d2"></div>
+
   <p>&infin; means the column reached exactly 0.0. The &times; column is arithmetic on the two printed columns, not reported by the paper; the last row is the plain mean of the sixteen cells. Table 11 gives 62.7 and 19.1 for the same models, a slightly different "Average ASR" slice: the same mismatch that makes Zephyr's GCG ASR 69.4 there and 69.5 here.</p>
 
-  <p><b>5.5 under GCG is the best any model-level defense in the paper achieves against its strongest attack</b>, beating Llama 2 13B Chat's 30.0 and 70B Chat's 37.5, both products of full industrial RLHF. The denominator is the 400 <em>text</em> behaviors (200 standard, 100 contextual, 100 copyright); the 110 multimodal behaviors sit in Table 9. It includes the 100 <a class="lnk" href="../types/copyright.html">copyright behaviors</a>, MinHash-graded near the floor for every model and attack (see <a class="lnk" href="../harms/copyright.html">the copyright category</a>), which pull both rows down about equally, so the comparison is fair but not a uniform compliance rate.</p>
+  <p><b>5.5 under GCG is the best any model-level defense in the paper achieves against its strongest attack</b>, beating Llama 2 13B Chat's 30.0 and 70B Chat's 37.5, both products of full industrial <span class="term" data-term="rlhf">RLHF</span>. The denominator is the 400 <em>text</em> behaviors (200 standard, 100 contextual, 100 copyright); the 110 multimodal behaviors sit in Table 9. It includes the 100 <a class="lnk" href="../types/copyright.html">copyright behaviors</a>, <span class="term" data-term="minhash">MinHash</span>-graded near the floor for every model and attack (see <a class="lnk" href="../harms/copyright.html">the copyright category</a>), which pull both rows down about equally, so the comparison is fair but not a uniform compliance rate.</p>
 
   <h2 id="capability">What it cost: Table 11</h2>
 
@@ -103,7 +110,7 @@
 
   <h2 id="read-across">Read the row across, not down</h2>
 
-  <p>Ignore the absolute numbers and read the table by group. The top (UAT, GCG-Transfer, GBDA, PEZ, GCG-Multi, GCG, AutoPrompt) is the entire <a class="lnk" href="../attacks/gradient.html">gradient family</a>, methods that search token sequences using the model's own gradients; all seven collapse, five below 5%. The bottom (TAP, PAIR, TAP-Transfer, PAP-top5, Stochastic Few-Shot) is almost exactly the <a class="lnk" href="../attacks/llm-optimizer.html">LLM-driven family</a>, where another model refines a natural-language jailbreak from what the target did last. Those barely move: 12.6&times; in one column, 1.1&times; in another, same model and training run.</p>
+  <p>Ignore the absolute numbers and read the table by group. The top (UAT, GCG-Transfer, GBDA, PEZ, GCG-Multi, GCG, AutoPrompt) is the entire <a class="lnk" href="../attacks/gradient.html">gradient family</a>, methods that search token sequences using the model's own gradients; all seven collapse, five below 5%. The bottom (TAP, PAIR, TAP-Transfer, PAP-top5, Stochastic Few-Shot) is almost exactly the <a class="lnk" href="../attacks/llm-optimizer.html">LLM-driven family</a>, where another model refines a natural-language <span class="term" data-term="jailbreak">jailbreak</span> from what the target did last. Those barely move: 12.6&times; in one column, 1.1&times; in another, same model and training run.</p>
 
   <p>The split is not simply gradient versus not. <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a>, <a class="lnk" href="../attacks/template.html#human-jailbreaks">Human Jailbreaks</a> and <a class="lnk" href="../attacks/template.html#zeroshot">ZeroShot</a> also fall far (4.6&times;, 4.9&times;, 8.3&times;) with no gradients. What they share is being <b>non-adaptive</b>: a fixed request, template, or blind prompt, which plain refusal training (the toward loss) handles for free. What survives is the intersection: attacks that adapt to <em>this</em> model in a space R2D2 never trained against. GCG adapts in token space, where the defense lives; PAIR and TAP adapt in semantic space, where it has nothing to say.</p>
 
@@ -122,7 +129,7 @@
   <p>"33 target LLMs and defenses" invites a misreading. <b>R2D2 is the only defense method HarmBench implements.</b> Everything else is a shipped model its vendor safety-trained: a real category, since safety training <em>is</em> a model-level defense, but with no defense code to reproduce. Three groups from <a class="lnk" href="../measure/results.html#table6">Table 6</a>:</p>
 
   <ul>
-    <li><b>The Llama 2 Chat family, what good refusal training looks like.</b> 32.5 / 30.0 / 37.5 under GCG for 7B / 13B / 70B, against 0.8 / 2.8 / 2.8 under <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a>: the RLHF signature, where merely asking gets nothing but a white-box optimizer still gets through about a third of the time. 70B is <em>less</em> robust than 13B: scale does not buy robustness, the pipeline does.</li>
+    <li><b>The Llama 2 Chat family, what good refusal training looks like.</b> 32.5 / 30.0 / 37.5 under GCG for 7B / 13B / 70B, against 0.8 / 2.8 / 2.8 under <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a>: the RLHF signature, where merely asking gets nothing but a <span class="term" data-term="white-box">white-box</span> optimizer still gets through about a third of the time. 70B is <em>less</em> robust than 13B: scale does not buy robustness, the pipeline does.</li>
     <li><b>The Claude models, the lowest numbers in the table.</b> Claude 2 and 2.1 at 2.7 and 2.6 under <a class="lnk" href="../attacks/gradient.html#gcg-transfer">GCG-Transfer</a>, under 5 on every column run, 0.3 under Human Jailbreaks; Claude 1 is higher at 12.1. API-only, so no gradient columns at all.</li>
     <li><b>The GPT models, safety-trained but penetrable by transfer.</b> GPT-4 0613 and GPT-4 Turbo 1106 hold DirectRequest to 21.0 and 9.3 and GCG-Transfer to 22.0 and 22.3, yet both exceed 54 under <a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a>, and GPT-3.5 Turbo 0613 reaches 62.3 there. Transfer attacks are what these models are worst against.</li>
   </ul>
@@ -149,9 +156,15 @@
 
   <p>That closes the measuring arc, and the map. <a class="lnk" href="../data/behaviors.html">All 510 behaviors</a> are listed in full: text, category, functional type, split, each linking to its harm page and its line in the source CSV.</p>
 
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
+
   <div class="callout">Next: <a class="lnk" href="../sources.html">Sources, verified</a> &mdash; every file, table and URL this map draws on, and the three places the repo and the paper disagree. Or return to <a class="lnk" href="../index.html">the field map</a> and start an arc you have not read; this page is the last of <a class="lnk" href="../index.html#measure">Measuring</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/widgets.js" defer></script>
+<script src="../lab/r2d2.js" defer></script>
+<script src="../widgets/r2d2.js" defer></script>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>

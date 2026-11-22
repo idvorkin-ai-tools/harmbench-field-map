@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -30,7 +32,7 @@
     <div class="s"><div class="k">precomputed archive</div><div class="v">10.4&nbsp;GB</div><div class="n">Zenodo, if you skip step 1 entirely</div></div>
   </div>
 
-  <p class="lead" style="max-width:760px">Part of the benchmark is a download, part a computation. The 510 behaviors, the <a class="lnk" href="../measure/classifier.html">Llama&nbsp;2 13B classifier</a> and the 100 MinHash pickles that grade <a class="lnk" href="../harms/copyright.html">copyright</a> behaviors are downloads. The test cases are not: a test case is what an attack <em>produced</em> against a specific model, one set per (method&nbsp;&times;&nbsp;target model) pair.</p>
+  <p class="lead" style="max-width:760px">Part of the benchmark is a download, part a computation. The 510 behaviors, the <a class="lnk" href="../measure/classifier.html">Llama&nbsp;2 13B classifier</a> and the 100 <span class="term" data-term="minhash">MinHash</span> pickles that grade <a class="lnk" href="../harms/copyright.html">copyright</a> behaviors are downloads. The test cases are not: a test case is what an attack <em>produced</em> against a specific model, one set per (method&nbsp;&times;&nbsp;target model) pair.</p>
 
   <h2>What ships, and what costs you GPU hours</h2>
 
@@ -44,7 +46,7 @@
 
   <h3>Step 1 &mdash; <span class="mono">generate_test_cases.py</span></h3>
 
-  <p>The attack runs here: the script loads a red-teaming class from <span class="mono">baselines/</span>, initialises it from <span class="mono">configs/method_configs/&lt;Method&gt;_config.yaml</span>, hands it a slice of the behavior CSV, and saves the result. Everything expensive happens in that call: <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a>'s 500 optimisation steps, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>'s attacker&ndash;target conversation, <a class="lnk" href="../attacks/llm-optimizer.html#gptfuzz">GPTFuzz</a>'s mutation loop.</p>
+  <p>The attack runs here: the script loads a <span class="term" data-term="red-teaming">red-teaming</span> class from <span class="mono">baselines/</span>, initialises it from <span class="mono">configs/method_configs/&lt;Method&gt;_config.yaml</span>, hands it a slice of the behavior CSV, and saves the result. Everything expensive happens in that call: <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a>'s 500 optimisation steps, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>'s attacker&ndash;target conversation, <a class="lnk" href="../attacks/llm-optimizer.html#gptfuzz">GPTFuzz</a>'s mutation loop.</p>
 
   <p>The slice comes from <span class="mono">--behavior_start_idx</span>/<span class="mono">--behavior_end_idx</span>, or <span class="mono">--behavior_ids_subset</span> to fill gaps after a failed job. Single-behavior methods write <span class="mono">{save_dir}/test_cases_individual_behaviors/{behavior_id}/test_cases.json</span>, beside a <span class="mono">logs.json</span> and a <span class="mono">method_config.json</span> recording the config, the pinned <span class="mono">transformers</span>/<span class="mono">vllm</span>/<span class="mono">ray</span>/<span class="mono">fastchat</span> versions, and any API token masked to its last four characters.</p>
 
@@ -52,19 +54,19 @@
 
   <p>The base-class contract requires only that after <span class="mono">save_test_cases</span>, running <span class="mono">merge_test_cases</span> yields a <span class="mono">test_cases.json</span> mapping behavior IDs to lists of test cases. Non-parallel methods write that file directly and inherit a merge that is literally <span class="mono">pass</span>. Parallel methods scatter output across per-behavior directories, one behavior or chunk per job, and the merge stitches it back.</p>
 
-  <p>Three classes implement a merge. <span class="mono">RedTeamingMethod</span> is the no-op. <span class="mono">SingleBehaviorRedTeamingMethod</span> (GCG, PEZ, GBDA, UAT, AutoPrompt) unions the per-behavior directories, asserting no ID appears twice. <span class="mono">EnsembleGCG</span> optimises one adversarial string jointly against every behavior, hence <span class="mono">behavior_chunk_size: all_behaviors</span>; its second axis is <span class="mono">run_ids</span>, where <span class="mono">GCG-Multi</span> and <span class="mono">GCG-Transfer</span> declare <span class="mono">run_ids: [0,1,2,3,4]</span> and the merge concatenates <span class="mono">test_cases_{run_id}.json</span>, so each behavior gets five test cases and an ASR averaged over five optimisations.</p>
+  <p>Three classes implement a merge. <span class="mono">RedTeamingMethod</span> is the no-op. <span class="mono">SingleBehaviorRedTeamingMethod</span> (GCG, PEZ, GBDA, UAT, AutoPrompt) unions the per-behavior directories, asserting no ID appears twice. <span class="mono">EnsembleGCG</span> optimises one adversarial string jointly against every behavior, hence <span class="mono">behavior_chunk_size: all_behaviors</span>; its second axis is <span class="mono">run_ids</span>, where <span class="mono">GCG-Multi</span> and <span class="mono">GCG-Transfer</span> declare <span class="mono">run_ids: [0,1,2,3,4]</span> and the merge concatenates <span class="mono">test_cases_{run_id}.json</span>, so each behavior gets five test cases and an <span class="term" data-term="attack-success-rate">ASR</span> averaged over five optimisations.</p>
 
   <div class="callout off"><span class="mono">SingleBehaviorRedTeamingMethod.merge_test_cases</span> silently skips any per-behavior file that does not exist, so a job that OOM'd or hit its 24-hour SLURM wall drops from the merged file and step 3 computes an ASR over whatever survived. Check the length of <span class="mono">test_cases.json</span> against your behavior count before trusting a number.</div>
 
   <h3>Step 2 &mdash; <span class="mono">generate_completions.py</span></h3>
 
-  <p>Send each merged test case to the target model, save at <span class="mono">completions/{model_name}.json</span>. Decoding is greedy and deterministic (<span class="mono">do_sample=False</span> on the HuggingFace path, <span class="mono">temperature=0</span> on the vLLM and API paths), and the budget is <span class="mono">max_new_tokens=512</span> for every experiment in the paper.</p>
+  <p>Send each merged test case to the target model, save at <span class="mono">completions/{model_name}.json</span>. Decoding is <span class="term" data-term="greedy-decoding">greedy</span> and deterministic (<span class="mono">do_sample=False</span> on the HuggingFace path, <span class="mono">temperature=0</span> on the vLLM and API paths), and the budget is <span class="mono">max_new_tokens=512</span> for every experiment in the paper.</p>
 
   <p>Pass anything but 512 and <span class="mono">run_pipeline.py</span> redirects completions and results into a <span class="mono">{N}_tokens/</span> subdirectory, so non-standard budgets never mix with the published grid. Since the metric is whether the model produced the harmful artifact, one needing 700 tokens scores as a failure at 512.</p>
 
   <h3>Step 3 &mdash; <span class="mono">evaluate_completions.py</span></h3>
 
-  <p>The grading pass reads the behavior CSV (tags and context strings) and the completions, then dispatches per behavior: the <span class="mono">hash_check</span> tag routes to <a class="lnk" href="../measure/classifier.html#minhash">MinHash</a>, everything else to the <a class="lnk" href="../measure/classifier.html#prompt">Llama&nbsp;2 13B classifier</a> under vLLM at <span class="mono">temperature=0.0, max_tokens=1</span>, a single-token label. Output is <span class="mono">results/{model_name}.json</span>, one 0/1 label per test case.</p>
+  <p>The grading pass reads the behavior CSV (tags and context strings) and the completions, then dispatches per behavior: the <span class="mono">hash_check</span> tag routes to <a class="lnk" href="../measure/classifier.html#minhash">MinHash</a>, everything else to the <a class="lnk" href="../measure/classifier.html#prompt">Llama&nbsp;2 13B classifier</a> under vLLM at <span class="mono">temperature=0.0, max_tokens=1</span>, a single-<span class="term" data-term="token">token</span> label. Output is <span class="mono">results/{model_name}.json</span>, one 0/1 label per test case.</p>
 
   <p>Step 3 re-clips every completion to 512 tokens with the classifier's own tokenizer (<span class="mono">truncation_side="right"</span>). ASR is a mean of means (rate per behavior, then averaged), which diverges from a flat mean only at <span class="mono">GCG-Multi</span>'s five test cases per behavior. A behavior ID in the completions but absent from the CSV you passed is skipped with a printed warning, which is how a 400-behavior completions file gets graded against the 80-behavior <a class="lnk" href="../data/behaviors.html">validation split</a>.</p>
 
@@ -95,9 +97,9 @@
 
   <p><span class="mono">model_type</span> takes one of four values (<span class="mono">open_source</span>, <span class="mono">closed_source</span>, <span class="mono">open_source_multimodal</span>, <span class="mono">closed_source_multimodal</span>), and every <span class="mono">run_pipeline.yaml</span> entry declares an <span class="mono">allowed_target_model_types</span> list. A model whose type is not in the list is dropped with a bare <span class="mono">continue</span>, no warning or error. Ask for <span class="mono">--methods GCG --models gpt-4-0613</span> and the command exits cleanly having submitted nothing.</p>
 
-  <p>The GPT-4 and Claude rows in <a class="lnk" href="../measure/results.html#table6">Table&nbsp;6</a> are mostly dashes because <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> and its white-box relatives need gradients through the target and the config refuses to schedule the job. (Filter out <em>every</em> requested model in <span class="mono">local_parallel</span> mode and the skip surfaces as a bare <span class="mono">NoneType</span> traceback in step 2.)</p>
+  <p>The GPT-4 and Claude rows in <a class="lnk" href="../measure/results.html#table6">Table&nbsp;6</a> are mostly dashes because <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> and its <span class="term" data-term="white-box">white-box</span> relatives need gradients through the target and the config refuses to schedule the job. (Filter out <em>every</em> requested model in <span class="mono">local_parallel</span> mode and the skip surfaces as a bare <span class="mono">NoneType</span> traceback in step 2.)</p>
 
-  <p>A step-1 job's GPU request is <span class="mono">base_num_gpus</span> plus the target's <span class="mono">num_gpus</span>, but only when the entry's <span class="mono">experiment_name_template</span> contains <span class="mono">&lt;model_name&gt;</span>; fixed-name transfer entries get <span class="mono">base_num_gpus</span> alone, so <span class="mono">GCG-Transfer</span> asks for 4 (its four attack models). Job count is <span class="mono">ceil(num_behaviors / behavior_chunk_size) &times; len(run_ids)</span>, from 1 to 320. Both read off the table below, verbatim from <span class="mono">run_pipeline.yaml</span>.</p>
+  <p>A step-1 job's GPU request is <span class="mono">base_num_gpus</span> plus the target's <span class="mono">num_gpus</span>, but only when the entry's <span class="mono">experiment_name_template</span> contains <span class="mono">&lt;model_name&gt;</span>; fixed-name <span class="term" data-term="transfer-attack">transfer</span> entries get <span class="mono">base_num_gpus</span> alone, so <span class="mono">GCG-Transfer</span> asks for 4 (its four attack models). Job count is <span class="mono">ceil(num_behaviors / behavior_chunk_size) &times; len(run_ids)</span>, from 1 to 320. Both read off the table below, verbatim from <span class="mono">run_pipeline.yaml</span>.</p>
 
   <div class="scroll">
   <table class="kv">
@@ -134,7 +136,7 @@
 
   <p>The five <span class="mono">MultiModal*</span> rows are the only ones accepting the multimodal types, enforcing the <a class="lnk" href="../types/multimodal.html">multimodal functional type</a>: a vision model in <span class="mono">models.yaml</span> is invisible to the other nineteen methods. <span class="mono">MultiModalPGDBlankImage</span> is <span class="mono">MultiModalPGD</span> under a different experiment config, not a distinct class.</p>
 
-  <p>Two entries sit commented out as &ldquo;expensive to run on closed-source models&rdquo;: <span class="mono">HumanJailbreaks-all</span> (the full jailbreak library, not the <span class="mono">random_subset_5</span> the paper reports) and <span class="mono">PAP-avg</span> (the full 40-strategy persuasion taxonomy, not the top 5), each roughly an order of magnitude more API calls per behavior. So the table's <span class="mono">Human</span> and <span class="mono">PAP-top5</span> columns are the cheap configurations: <a class="lnk" href="../attacks/template.html#human-jailbreaks">Human Jailbreaks</a> at 27.3 and PAP-top5 at 16.6.</p>
+  <p>Two entries sit commented out as &ldquo;expensive to run on closed-source models&rdquo;: <span class="mono">HumanJailbreaks-all</span> (the full <span class="term" data-term="jailbreak">jailbreak</span> library, not the <span class="mono">random_subset_5</span> the paper reports) and <span class="mono">PAP-avg</span> (the full 40-strategy persuasion taxonomy, not the top 5), each roughly an order of magnitude more API calls per behavior. So the table's <span class="mono">Human</span> and <span class="mono">PAP-top5</span> columns are the cheap configurations: <a class="lnk" href="../attacks/template.html#human-jailbreaks">Human Jailbreaks</a> at 27.3 and PAP-top5 at 16.6.</p>
 
   <h2 id="api-only">The API-only snag: <span class="mono">base_url</span></h2>
 
@@ -183,15 +185,18 @@
   --behaviors_path ./data/behavior_datasets/harmbench_behaviors_text_val.csv \
   --step all --mode local_parallel</code></pre>
 
-  <p><span class="mono">harmbench_behaviors_text_val.csv</span> is the right file: the 80 held-out behaviors, spanning all seven semantic categories and all three text <a class="lnk" href="../data/behaviors.html">functional types</a>, the split to iterate against so the test classifier is never optimised against. It runs in minutes, yet a dropped <a class="lnk" href="../types/contextual.html#contextstring">ContextString</a> column or wrong chat template shows up at once as an implausible number.</p>
+  <p><span class="mono">harmbench_behaviors_text_val.csv</span> is the right file: the 80 <span class="term" data-term="held-out-set">held-out</span> behaviors, spanning all seven semantic categories and all three text <a class="lnk" href="../data/behaviors.html">functional types</a>, the split to iterate against so the test classifier is never optimised against. It runs in minutes, yet a dropped <a class="lnk" href="../types/contextual.html#contextstring">ContextString</a> column or wrong chat template shows up at once as an implausible number.</p>
 
-  <p>That exercises all four steps at once, each failing differently and cheap to fix alone. Then add one black-box attack, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a> or <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a> (both accept closed-source targets, two GPUs for the attacker), before anything gradient-based touches the cluster.</p>
+  <p>That exercises all four steps at once, each failing differently and cheap to fix alone. Then add one <span class="term" data-term="black-box">black-box</span> attack, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a> or <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a> (both accept closed-source targets, two GPUs for the attacker), before anything gradient-based touches the cluster.</p>
 
   <p>Read the number against the <a class="lnk" href="../measure/results.html#findings">grid</a>: DirectRequest averages 25.3 across the paper's 33 targets, but 65.8 on Zephyr 7B and 0.8 on Llama&nbsp;2 7B Chat, so a first run near zero is a safety-trained model, not a broken pipeline. HarmBench ships no benign set, so a model that refuses everything scores 0% and looks flawless.</p>
+
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
 
   <div class="callout">Next: <a class="lnk" href="../measure/results.html">What the paper found</a> &middot; back to the <a class="lnk" href="../index.html#measure">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>

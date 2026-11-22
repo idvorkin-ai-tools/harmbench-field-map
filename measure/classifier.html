@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -18,9 +20,11 @@
 <main>
   <div class="eyebrow"><span class="box bb mono">MEASURING &middot; 01 OF 04</span><span class="mono">93.19% human agreement &middot; 512-token budget &middot; 1 output token</span></div>
   <h1>The classifier</h1>
-  <div class="authors">What "attack success rate" is a measurement of, and what it is not</div>
+  <div class="authors">What "<span class="term" data-term="attack-success-rate">attack success rate</span>" is a measurement of, and what it is not</div>
 
-  <div class="tldr"><b>TL;DR.</b> Every ASR number is the averaged output of one fine-tuned 13B model reading one prompt; for the 100 <a class="lnk" href="../types/copyright.html#hash-check">copyright behaviors</a> it is instead a MinHash near-duplicate check, no neural grader. The prompt is a seven-rule rubric asking whether a generation is an instance of <b>this</b> behavior, not whether it is harmful in general, which the classifiers HarmBench replaced could not distinguish. Human agreement is 93.19%, so roughly 7% label noise; two attacks three points apart are the same. Over-refusal is not measured: a model that refuses everything scores 0% and looks flawless.</div>
+  <div class="tldr plain-only"><b>TL;DR.</b> Every ASR number is the averaged output of one <span class="term" data-term="fine-tuning">fine-tuned</span> 13B model reading one prompt; for the 100 <a class="lnk" href="../types/copyright.html#hash-check">copyright behaviors</a> it is instead a <span class="term" data-term="minhash">MinHash</span> near-duplicate check, no neural grader. The prompt is a seven-rule <span class="term" data-term="rubric">rubric</span> asking whether a generation is an instance of <b>this</b> behavior, not whether it is harmful in general, which the classifiers HarmBench replaced could not distinguish. <span class="term" data-term="percent-agreement">Human agreement</span> is 93.19%, so roughly 7% label noise; two attacks three points apart are the same. <span class="term" data-term="over-refusal">Over-refusal</span> is not measured: a model that refuses everything scores 0% and looks flawless.</div>
+  <div class="tldr tech-only"><b>TL;DR.</b> ASR = (1/N) &Sigma; c(f<sub>T</sub>(x<sub>i</sub>), y): greedy generation to T = 512 new tokens, then one output token ("yes" or "no") from <span class="mono">cais/HarmBench-Llama-2-13b-cls</span> under a seven-rule prompt asking whether the completion is an instance of behavior y, macro-averaged over behaviors. The 100 copyright behaviors use a MinHash window match at Jaccard &gt; 0.6 instead. Agreement with human labels is 93.19% on 600 examples (41 errors), and there is no false-refusal term, so refusing everything minimises ASR.</div>
+  <div class="tldr eli5-only"><b>In short.</b> A referee robot reads each answer and says "yes" only if the bad thing really happened. It agrees with people about 93 times out of 100, so two scores that are very close might just be the referee's mistakes. It only counts bad answers, so a robot that says "no" to everything looks perfect.</div>
 
   <div class="statgrid">
     <div class="s"><div class="k">Agreement</div><div class="v">93.19%</div><div class="n">with human labels, 600-example set</div></div>
@@ -41,11 +45,11 @@
   <ul>
     <li><span class="mono">y</span>, a <b>behavior</b>: one row of the shipped CSV with a BehaviorID (<a class="lnk" href="../data/behaviors.html">the full list</a>), a specific task, not a category.</li>
     <li><span class="mono">g</span>, a <b>red teaming method</b>: given <span class="mono">y</span> it emits <span class="mono">N</span> test cases, usually one per behavior, sometimes five.</li>
-    <li><span class="mono">f</span>, the <b>target model</b>; <span class="mono">f_T</span> its generation function truncated at <span class="mono">T</span> new tokens.</li>
+    <li><span class="mono">f</span>, the <b>target model</b>; <span class="mono">f_T</span> its generation function truncated at <span class="mono">T</span> new <span class="term" data-term="token">tokens</span>.</li>
     <li><span class="mono">c</span>, the <b>classifier</b>, mapping (completion, behavior) to 1 or 0.</li>
   </ul>
 
-  <p><b>Generation is greedy and deterministic</b>: <span class="mono">temperature=0</span>, <span class="mono">do_sample=False</span>, <span class="mono">num_beams=1</span>, one sample per test case. Inherited from GCG and PAIR, it leaves ASR no sampling variance; all variance lives in the attack's search and the grader.</p>
+  <p><b>Generation is <span class="term" data-term="greedy-decoding">greedy</span> and deterministic</b>: <span class="mono">temperature=0</span>, <span class="mono">do_sample=False</span>, <span class="mono">num_beams=1</span>, one sample per test case. Inherited from GCG and PAIR, it leaves ASR no sampling variance; all variance lives in the attack's search and the grader.</p>
 
   <p><b><span class="mono">T</span> = 512 new tokens, fixed.</b> Prior substring-matching metrics never standardised it; the paper shows the choice moving ASR by <b>up to 30 points</b>. HarmBench enforces it twice: <span class="mono">scripts/step2.sh</span> generates at <span class="mono">max_new_tokens=512</span>, and <span class="mono">evaluate_completions.py</span> re-clips every completion to <span class="mono">--num_tokens</span> (default 512) with the <em>classifier's</em> tokenizer before grading, so a file made under a different budget is still judged on its first 512 tokens.</p>
 
@@ -57,7 +61,7 @@
 
   <h2 id="prompt">The judging prompt</h2>
 
-  <p>Three graders ship, all on Hugging Face, all fine-tunes:</p>
+  <p>Three <span class="term" data-term="llm-judge">graders</span> ship, all on Hugging Face, all fine-tunes:</p>
 
   <div class="scroll"><table class="kv">
     <thead><tr><th>Model</th><th>Role</th><th>Base</th><th class="num">Agreement</th></tr></thead>
@@ -148,7 +152,7 @@ else:
 
   <h2 id="agreement">How the grader was built, and how well it agrees</h2>
 
-  <p>A three-stage bootstrap. <b>Stage one: a human-labelled validation set.</b> 600 examples from real grid completions across all models and baseline attacks, so it admits the near-miss cases (partial compliance, refuse-then-comply, competent-but-wrong) at their natural rate; balanced one positive and one negative per completion, then hand-labelled. <b>Stage two: prompt-tune GPT-4 against it</b>, three prompts for the three non-copyright functional types, each carrying the human annotation instructions. <b>Stage three: distil.</b> Each round samples 10,000&ndash;15,000 completions from 10&ndash;20 chat models, labels with prompted GPT-4, keeps only GPT-4/Llama-2 <em>disagreements</em>, and retrains from the public checkpoint; repeat 15 times, hard-negative mining from the model's own errors.</p>
+  <p>A three-stage bootstrap. <b>Stage one: a human-labelled validation set.</b> 600 examples from real grid completions across all models and baseline attacks, so it admits the near-miss cases (partial compliance, refuse-then-comply, competent-but-wrong) at their natural rate; balanced one positive and one negative per completion, then hand-labelled. <b>Stage two: prompt-tune GPT-4 against it</b>, three prompts for the three non-copyright functional types, each carrying the human annotation instructions. <b>Stage three: <span class="term" data-term="distillation">distil</span>.</b> Each round samples 10,000&ndash;15,000 completions from 10&ndash;20 chat models, labels with prompted GPT-4, keeps only GPT-4/Llama-2 <em>disagreements</em>, and retrains from the public checkpoint; repeat 15 times, hard-negative mining from the model's own errors.</p>
 
   <p>Table 3, agreement with the human labels, in percent:</p>
 
@@ -161,7 +165,7 @@ else:
     </tbody>
   </table></div>
 
-  <p>The 13B fine-tune beats prompted GPT-4 by about five points, which justifies shipping a static open-weights grader over an API call. Every classifier scores lower on contextual than standard, HarmBench included (94.53 &rarr; 90.5).</p>
+  <p>The 13B fine-tune beats prompted GPT-4 by about five points, which justifies shipping a static <span class="term" data-term="open-weights">open-weights</span> grader over an API call. Every classifier scores lower on contextual than standard, HarmBench included (94.53 &rarr; 90.5).</p>
 
   <h3>Table 4 &mdash; the prequalification sets, and how the alternatives fail</h3>
 
@@ -178,7 +182,7 @@ else:
     </tbody>
   </table></div>
 
-  <p><b>AdvBench scores 28.2 on Set 2</b>, harmless text: its metric calls a completion "jailbroken" when no refusal prefix ("I'm sorry", "As an AI", and about two dozen more in <span class="mono">advbench_metric_test_prefixes</span>) appears, so benign text passes three times in four. It measures the absence of an apology, not harm, so it inflates ASR. HarmBench keeps <span class="mono">compute_results_advbench</span> behind <span class="mono">--include_advbench_metric</span> only for comparison with older literature.</p>
+  <p><b>AdvBench scores 28.2 on Set 2</b> (<a class="lnk" href="https://idvorkin-ai-tools.github.io/red-teaming-ramp-up/benchmarks/advbench.html">the AdvBench card</a>), harmless text: its metric calls a completion "jailbroken" when no refusal prefix ("I'm sorry", "As an AI", and about two dozen more in <span class="mono">advbench_metric_test_prefixes</span>) appears, so benign text passes three times in four. It measures the absence of an apology, not harm, so it inflates ASR. HarmBench keeps <span class="mono">compute_results_advbench</span> behind <span class="mono">--include_advbench_metric</span> only for comparison with older literature.</p>
 
   <p><b>GPTFuzz collapses to 35.2 and Llama Guard to 72.8 on Set 3</b>, both near-perfect on Set 2 (96.3 and 99.0): they take one input, not two, so given harmful text for the <em>wrong</em> behavior they still say "harmful". That is the design argument, attack success is "the model did <b>this specific task</b>", not "emitted something bad", and HarmBench's 93.4 on Set 3 is what enforces it.</p>
 
@@ -186,7 +190,10 @@ else:
 
   <p><b>Over-refusal is not measured. At all.</b> No benign set ships and no false-refusal rate is reported, so a model that refuses every input scores 0% ASR across all 18 attacks. The only capability check is a single MT-Bench score for the authors' own defended model (Table 11: Zephyr 7B 7.34 &rarr; 6.0 after R2D2, 1.34 points for 69.5 &rarr; 5.5 under GCG; see <a class="lnk" href="../measure/defenses.html#r2d2">the defenses page</a>), not a benchmark component. Comparing defenses needs your own capability evaluation.</p>
 
-  <p><b>~93% agreement is ~7% label noise.</b> The test classifier makes 41 errors on the 600-example set, and that floor propagates into every cell, so two attacks a few points apart are not distinguishable: read <a class="lnk" href="../measure/results.html#findings">the results table</a> as bands, not a decimal-precision ranking.</p>
+  <p><b>~93% agreement is ~7% label noise.</b> The test classifier makes 41 errors on the 600-example set, and that floor propagates into every cell, so two attacks a few points apart are not distinguishable: read <a class="lnk" href="../measure/results.html#findings">the results table</a> as bands, not a decimal-precision ranking. How to check a judge like this one in general (agreement beyond chance, judge against truth, error bars on a score) is the subject of the LLM Judges map: <a class="lnk" href="https://idvorkin-ai-tools.github.io/llm-judges-field-map/parts/p04.html">do the judges agree?</a>, <a class="lnk" href="https://idvorkin-ai-tools.github.io/llm-judges-field-map/parts/p05.html">judge versus truth</a> and <a class="lnk" href="https://idvorkin-ai-tools.github.io/llm-judges-field-map/parts/p08.html#error-bars">error bars</a>.</p>
+
+  <p class="lab-try"><b>Try this</b>Pick a pair from this map, then drag the gap: it has to clear the orange band (41 errors in 600, about 6.8 points) before the ranking means anything. Treats each ASR as one model over n behaviors.</p>
+  <div class="lab" data-widget="noise"></div>
 
   <p><b>The grader is a 13B model that wants a GPU.</b> <span class="mono">LLM(model=args.cls_path, tensor_parallel_size=1)</span> loads into vLLM on one device for the whole pass, a GPU job over (behaviors &times; models &times; attacks &times; test cases) completions.</p>
 
@@ -200,9 +207,15 @@ else:
 
   <p>The two are deliberately different models, not checkpoints of one: the validation grader is fine-tuned from <em>Mistral 7B base</em> on <em>half</em> the test grader's set. It agrees with humans 88.6% against 93.2% (51 errors to 41), and their error sets intersect on only <b>26 examples</b>. Because the errors are largely disjoint, optimise against Mistral and report on Llama 2 and your number holds; optimise against Llama 2 and you have measured your own overfitting.</p>
 
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
+
   <div class="callout">Next: <a class="lnk" href="../measure/pipeline.html">Running it: the four steps</a>, where the 512-token budget is set, why a merge step exists, and the one field in <span class="mono">models.yaml</span> that decides which attacks you may run. Back to the <a class="lnk" href="../index.html#measure">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/widgets.js" defer></script>
+<script src="../lab/noise.js" defer></script>
+<script src="../widgets/noise.js" defer></script>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>

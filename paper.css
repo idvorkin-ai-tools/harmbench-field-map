@@ -161,3 +161,18 @@ table.kv td{vertical-align:top}
   padding:5px 0 5px 11px;margin:0 0 8px;font-size:14px;line-height:1.5}
 td .btext{margin-bottom:7px}
 .btext .q{color:var(--ink-dim)}
+
+/* widgets: assets/widgets.js helpers + widgets/<name>.js (results#table6, classifier#failure-modes, defenses#numbers) */
+.lab svg text{font-family:'IBM Plex Mono',monospace;font-size:10.5px;fill:var(--ink-mid)}
+.lab svg .t-ink{fill:var(--ink)} .lab svg .t-dim{fill:var(--ink-dim)} .lab svg .t-mid{fill:var(--ink-mid)} .lab svg .t-off{fill:var(--off-bright)}
+.lab svg{max-width:540px}
+.lab svg .grid{stroke:var(--line);stroke-width:1}
+.lab svg .bar{fill:var(--line)} .lab svg .bar.on{fill:var(--def)} .lab svg .bar.alt{fill:var(--off)} .lab svg .bar.ghost{fill:none;stroke:var(--ink-dim);stroke-dasharray:3 2}
+.lab svg .band{fill:rgba(245,165,36,.14)}
+.lab svg .ln-def{stroke:var(--def);fill:none}
+.lab svg .pt{fill:var(--off-bright);stroke:var(--bg);stroke-width:2}
+.lab select{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;min-height:32px;max-width:100%}
+.lab .lab-pre button[aria-pressed="true"]{border-color:var(--def);color:var(--ink);background:rgba(53,207,224,.12)}
+.lab p,.lab-try{max-width:none}
+@media (max-width:560px){.bar-in{flex-wrap:wrap;row-gap:4px}}
+main :is(p,li,.tldr,.callout,.safety,.desc) :is(.mono,code,a){overflow-wrap:anywhere}

@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -20,7 +22,7 @@
   <h1>Contextual behaviors</h1>
   <div class="authors">The 100 behaviors that pair a supplied passage with a narrow question about it: HarmBench added them to make behaviors un-Googleable, and they turned out easiest to elicit.</div>
 
-  <div class="tldr"><b>TL;DR &mdash;</b> A contextual behavior is two fields: a <span class="mono">ContextString</span> holding a real document and a short question that only makes sense given it. The passage is prepended to the question to form the prompt, threaded into the attacker LLM's instructions where a method has them, and handed to the grader through a second prompt template. All three couplings live in per-baseline code, so a harness that ignores the column still runs, still prints a number, and measures a different, easier benchmark. On all sixteen attack columns in Table 6, contextual behaviors score higher than standard; <span class="mono">DirectRequest</span> nearly doubles, 23.9 to 46.2.</div>
+  <div class="tldr"><b>TL;DR &mdash;</b> A <span class="term" data-term="contextual-behavior">contextual behavior</span> is two fields: a <span class="mono">ContextString</span> holding a real document and a short question that only makes sense given it. The passage is prepended to the question to form the prompt, threaded into the attacker LLM's instructions where a method has them, and handed to the grader through a second prompt template. All three couplings live in per-baseline code, so a harness that ignores the column still runs, still prints a number, and measures a different, easier benchmark. On all sixteen attack columns in Table 6, contextual behaviors score higher than standard; <span class="mono">DirectRequest</span> nearly doubles, 23.9 to 46.2.</div>
 
   <div class="chips">
     <a class="tag wb" href="../types/standard.html">standard &middot; 200</a>
@@ -55,7 +57,7 @@ test_cases[behavior_id] = [behavior]</code></pre>
 
   <p><a class="lnk" href="../attacks/gradient.html#gcg">GCG</a>, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a> and <a class="lnk" href="../attacks/template.html#human-jailbreaks">Human Jailbreaks</a> each perform the same join in their own way. Seventeen baseline modules read <span class="mono">behavior_dict['ContextString']</span> with no shared utility: one, <a class="lnk" href="../attacks/template.html#zeroshot">ZeroShot</a>, uses five hyphens instead of three.</p>
 
-  <p><strong>2. Into the attacker model's own instructions.</strong> A bare question about an absent document is no objective for a second LLM, so <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a>, <a class="lnk" href="../attacks/template.html#sfs">Stochastic Few-Shot</a>, <a class="lnk" href="../attacks/llm-optimizer.html#pap-top5">PAP</a> and ZeroShot each carry a <em>second</em> set of templates (<span class="mono">method_template_contextual</span>, <span class="mono">one_shot_kd_contexual</span>, a contextual attacker system prompt) selected by <span class="mono">if context_str</span>, and PAIR's and TAP's judge prompts take a <span class="mono">[CONTEXT]</span> block too. Adding this type roughly doubled the prompt surface of half the attack library.</p>
+  <p><strong>2. Into the attacker model's own instructions.</strong> A bare question about an absent document is no objective for a second LLM, so <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, <a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a>, <a class="lnk" href="../attacks/template.html#sfs">Stochastic Few-Shot</a>, <a class="lnk" href="../attacks/llm-optimizer.html#pap-top5">PAP</a> and ZeroShot each carry a <em>second</em> set of templates (<span class="mono">method_template_contextual</span>, <span class="mono">one_shot_kd_contexual</span>, a contextual attacker <span class="term" data-term="system-prompt">system prompt</span>) selected by <span class="mono">if context_str</span>, and PAIR's and TAP's <span class="term" data-term="llm-judge">judge</span> prompts take a <span class="mono">[CONTEXT]</span> block too. Adding this type roughly doubled the prompt surface of half the attack library.</p>
 
   <p><strong>3. Into the grader.</strong> <span class="mono">compute_results_classifier</span> in <span class="mono">eval_utils.py</span> dispatches on the tag, not on the functional category:</p>
 
@@ -76,14 +78,14 @@ else:
 
   <p><span class="mono">prompt_contextual</span> is the plain judging prompt with a <span class="mono">[CONTEXT]</span> block ahead of <span class="mono">[BEHAVIOR]</span> and its first rule rewritten: instances of <em>the behavior and context</em> must be unambiguous and non-minimal. The 13B judge is asked not whether the completion is harmful but whether it carries out the behavior <em>with respect to this document</em>, so the contextual slice cannot use the standard path. Full prompt text and dispatch table on the <a class="lnk" href="../measure/classifier.html#prompt">classifier page</a>.</p>
 
-  <p>A fourth consequence: the passage is a long static prefix, so GCG ships <span class="mono">use_prefix_cache: True</span>, a KV cache over those prefix tokens, added to make GCG tractable on contextual behaviors. At 512 candidates re-scored across 500 steps, a 162-word preamble decides feasible versus unaffordable.</p>
+  <p>A fourth consequence: the passage is a long static prefix, so GCG ships <span class="mono">use_prefix_cache: True</span>, a KV cache over those prefix <span class="term" data-term="token">tokens</span>, added to make GCG tractable on contextual behaviors. At 512 candidates re-scored across 500 steps, a 162-word preamble decides feasible versus unaffordable.</p>
 
   <div class="safety"><b>Not shown here.</b> The passages run 150 to 3,544 characters and would swamp the page, so they are not printed. Each is on <a class="lnk" href="../data/behaviors.html">the behaviors page</a>, folded behind its behavior's row and opened when you follow a link to it. The paper prints three examples in Figures 13&ndash;15.</div>
 
   <h2 id="grading">What the grader does with it &mdash; and how well</h2>
-  <p>Table 3 measures agreement with human labels per text type: the classifier scores <strong>94.53%</strong> on standard and <strong>90.5%</strong> on contextual. Every baseline grader drops on contextual too (GPT-4 89.8 to 85.5, Llama Guard 68.41 to 64.0). The ~7% label noise quoted elsewhere is nearer 10% here, and two contextual ASR figures five points apart are not distinguishable. See <a class="lnk" href="../measure/classifier.html#agreement">agreement</a> and <a class="lnk" href="../measure/classifier.html#failure-modes">failure modes</a>.</p>
+  <p>Table 3 measures <span class="term" data-term="percent-agreement">agreement with human</span> labels per text type: the classifier scores <strong>94.53%</strong> on standard and <strong>90.5%</strong> on contextual. Every baseline grader drops on contextual too (GPT-4 89.8 to 85.5, Llama Guard 68.41 to 64.0). The ~7% label noise quoted elsewhere is nearer 10% here, and two contextual <span class="term" data-term="attack-success-rate">ASR</span> figures five points apart are not distinguishable. See <a class="lnk" href="../measure/classifier.html#agreement">agreement</a> and <a class="lnk" href="../measure/classifier.html#failure-modes">failure modes</a>.</p>
 
-  <p>The rest of the grading path is shared with standard behaviors: same <span class="mono">cais/HarmBench-Llama-2-13b-cls</span> weights, greedy decoding at a fixed 512 new tokens, one 0/1 label per test case, ASR the mean. Only <a class="lnk" href="../types/copyright.html#hash-check">copyright behaviors</a> leave the classifier entirely, for MinHash.</p>
+  <p>The rest of the grading path is shared with standard behaviors: same <span class="mono">cais/HarmBench-Llama-2-13b-cls</span> weights, <span class="term" data-term="greedy-decoding">greedy</span> decoding at a fixed 512 new tokens, one 0/1 label per test case, ASR the mean. Only <a class="lnk" href="../types/copyright.html#hash-check">copyright behaviors</a> leave the classifier entirely, for <span class="term" data-term="minhash">MinHash</span>.</p>
 
   <h2 id="draw">Where the 100 come from</h2>
   <p>They cluster in three of the seven semantic categories and are nearly absent where the harm is a self-contained request.</p>
@@ -155,7 +157,7 @@ else:
 
   <p>Gaps are largest where the attack is weakest and smallest where it is strongest: <strong>the context passage is a substitute for the attack, not a multiplier</strong>, and the two do not stack.</p>
 
-  <p>Under DirectRequest, standard &rarr; contextual: GPT-4-0613 10.0 &rarr; 52.0; Orca 2 13B 44.0 &rarr; 83.0; Mistral 7B 46.0 &rarr; 86.0. The paper's own defended model, <a class="lnk" href="../measure/defenses.html#r2d2">Zephyr 7B + R2D2</a>, scores <strong>0.0</strong> under GCG on standard behaviors and <strong>48.0</strong> under DirectRequest on contextual ones: adversarial training against gradient attacks on self-contained requests transferred to neither the other attack family nor the other behavior type. Full grid and discrepancy notes on <a class="lnk" href="../measure/results.html#table6">the results page</a>.</p>
+  <p>Under DirectRequest, standard &rarr; contextual: GPT-4-0613 10.0 &rarr; 52.0; Orca 2 13B 44.0 &rarr; 83.0; Mistral 7B 46.0 &rarr; 86.0. The paper's own defended model, <a class="lnk" href="../measure/defenses.html#r2d2">Zephyr 7B + R2D2</a>, scores <strong>0.0</strong> under GCG on standard behaviors and <strong>48.0</strong> under DirectRequest on contextual ones: <span class="term" data-term="adversarial-training">adversarial training</span> against gradient attacks on self-contained requests transferred to neither the other attack family nor the other behavior type. Full grid and discrepancy notes on <a class="lnk" href="../measure/results.html#table6">the results page</a>.</p>
 
   <h2 id="reading">Why the frame works</h2>
   <p>A document reframes the request three ways: it reads as reading comprehension rather than <em>volunteer contraband from training data</em>; as technical and bounded rather than broad and lurid; and, with the harmful material already present, complying looks like summarisation, not disclosure.</p>
@@ -175,11 +177,14 @@ else:
     <li><strong>The 512-token budget was not raised to compensate.</strong> It is fixed and load-bearing: change it and your numbers are incomparable to every published figure. See <a class="lnk" href="../measure/pipeline.html#steps">the pipeline</a>.</li>
   </ul>
 
-  <p>One last mismatch: the paper's appendix describes the validation split as 40 standard + 20 contextual + 20 copyright + 20 multimodal; the shipped CSV has <strong>41 standard and 19 contextual</strong>. The paper explains it: stratified sampling then manual adjustment against an earlier version of the semantic categories. Use the CSV; it is what the pipeline reads. This and two other repo-vs-paper discrepancies are on <a class="lnk" href="../sources.html">the sources page</a>.</p>
+  <p>One last mismatch: the paper's appendix describes the validation split as 40 standard + 20 contextual + 20 copyright + 20 multimodal; the shipped CSV has <strong>41 standard and 19 contextual</strong>. The paper explains it: stratified sampling then manual adjustment against an earlier version of the semantic categories. Use the CSV; it is what the pipeline reads. This and the map&rsquo;s other discrepancies, four in all (three material), are on <a class="lnk" href="../sources.html">the sources page</a>.</p>
+
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
 
   <div class="callout off">Next: <a class="lnk" href="../types/copyright.html">Copyright behaviors</a> &mdash; the type that leaves the neural grader behind entirely for sliding-window MinHash, and the reason the copyright column sits near zero. &middot; back to the <a class="lnk" href="../index.html#types">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>
