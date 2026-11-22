@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -20,7 +22,9 @@
   <h1>What the paper found</h1>
   <div class="authors">Reading Table 6 cell by cell: which findings survive, which need a caveat, and one printed row that is arithmetically impossible.</div>
 
-  <div class="tldr"><b>TL;DR:</b> Eighteen attacks against 33 targets, both ways: no model resisted every attack, no attack broke every model. Post-training pipeline matters far more than size. Zephyr 7B is 69.5 under GCG; those same weights adversarially trained are 5.5. Quote an attack's gap over DirectRequest (simply asking), not its raw score. And the Average row under the copyright sub-table is arithmetically impossible; recomputed values and proof below.</div>
+  <div class="tldr plain-only"><b>TL;DR:</b> Eighteen attacks against 33 targets, both ways: no model resisted every attack, no attack broke every model. Post-training pipeline matters far more than size. Zephyr 7B is 69.5 under GCG; those same weights <span class="term" data-term="adversarial-training">adversarially trained</span> are 5.5. Quote an attack's gap over DirectRequest (simply asking), not its raw score. And the Average row under the copyright sub-table is arithmetically impossible; recomputed values and proof below.</div>
+  <div class="tldr tech-only"><b>TL;DR:</b> Table 6 is 16 method columns &times; 29 targets over the 400 text behaviors (200 standard + 100 contextual + 100 copyright), each cell a classifier ASR, and its column means sit over different model populations (19 open-weight rows for GCG, 29 for DirectRequest). Post-training explains more variance than parameter count; the defended Zephyr row (5.5 under GCG, 60.8 under TAP) shows an ASR is specific to the attack; and the printed copyright Average row (50.7 for GCG) cannot be the mean of cells that never exceed 28.0.</div>
+  <div class="tldr eli5-only"><b>In short:</b> this is the big scoreboard, lots of robots against lots of tricks. No robot beat every trick, and no trick fooled every robot. How a robot was taught mattered much more than how big it is.</div>
 
   <div class="statgrid">
     <div class="s"><div class="k">Strongest column</div><div class="v">54.3</div><div class="n">GCG, all behaviors &mdash; over the 19 open-weight rows it could run against</div></div>
@@ -34,7 +38,7 @@
 
   <h2 id="table6">The grid</h2>
 
-  <p>Table 6 is 29 target rows by 16 attack columns. Each cell is an attack success rate: the fraction of a method's test cases whose completion the <a class="lnk" href="../measure/classifier.html">HarmBench classifier</a> scored as exhibiting the behavior. Generation is greedy, 512 new tokens, same behaviors and grader in every cell.</p>
+  <p>Table 6 is 29 target rows by 16 attack columns. Each cell is an <span class="term" data-term="attack-success-rate">attack success rate</span>: the fraction of a method's test cases whose completion the <a class="lnk" href="../measure/classifier.html">HarmBench classifier</a> scored as exhibiting the behavior. Generation is <span class="term" data-term="greedy-decoding">greedy</span>, 512 new <span class="term" data-term="token">tokens</span>, same behaviors and grader in every cell.</p>
 
   <p>&ldquo;All behaviors&rdquo; means the <strong>400 text behaviors</strong>: 200 <a class="lnk" href="../types/standard.html">standard</a> + 100 <a class="lnk" href="../types/contextual.html">contextual</a> + 100 <a class="lnk" href="../types/copyright.html">copyright</a>. The 110 multimodal behaviors (Tables 9 and 10) are not blended in (see <a class="lnk" href="#discrepancy">below</a>). Per-cell behavior IDs: <a class="lnk" href="../data/behaviors.html">the behavior index</a>.</p>
 
@@ -105,7 +109,7 @@
     </tbody>
   </table></div>
 
-  <p>GCG's 54.3 is over nineteen open-weight models, eighteen with no adversarial training; TAP-Transfer's 48.3 includes Claude 2 and Claude 2.1, whose 0.8 cells pull the mean down. The 1.6-point gap between GCG and AutoDAN, on populations of 19 and 21, is not a result.</p>
+  <p>GCG's 54.3 is over nineteen <span class="term" data-term="open-weights">open-weight</span> models, eighteen with no adversarial training; TAP-Transfer's 48.3 includes Claude 2 and Claude 2.1, whose 0.8 cells pull the mean down. The 1.6-point gap between GCG and AutoDAN, on populations of 19 and 21, is not a result.</p>
 
   <h3>By functional slice</h3>
 
@@ -131,7 +135,7 @@
   <p>Within Llama 2 Chat, GCG scores 32.5 on 7B, 30.0 on 13B, <strong>37.5 on 70B</strong>: the largest is the least robust, not monotonic. Vicuna does the same in miniature (65.5 at 7B, 67.0 at 13B). Under AutoDAN the Llama rows go 0.5, 0.8, 2.8 with size, within noise of zero. Scale is not the variable; &ldquo;bigger models will be safer&rdquo; gets no support here.</p>
 
   <h3>The training pipeline is the variable</h3>
-  <p>Mistral 7B scores 69.8 under GCG. Zephyr 7B, a fine-tune of that base, scores 69.5. Take Zephyr's SFT pipeline, add adversarial training against a refreshed pool of GCG test cases, and the same architecture lands at <span class="mono">5.5</span>: a 64-point swing with no change of base model or size.</p>
+  <p>Mistral 7B scores 69.8 under GCG. Zephyr 7B, a <span class="term" data-term="fine-tuning">fine-tune</span> of that base, scores 69.5. Take Zephyr's SFT pipeline, add adversarial training against a refreshed pool of GCG test cases, and the same architecture lands at <span class="mono">5.5</span>: a 64-point swing with no change of base model or size.</p>
   <p>Easily over-read, though: the same defended row is 48.0 under PAIR and 54.3 under TAP-Transfer, barely moved from undefended Zephyr's 58.8 and 69.3. The training bought robustness to gradient attacks only. <a class="lnk" href="../measure/defenses.html#r2d2">The defenses page</a> takes that apart, including its capability cost.</p>
 
   <h3>Contextual behaviors are easier than standard ones</h3>
@@ -177,7 +181,7 @@
   <p>Conclusion: <strong>the printed copyright Average row in v2 is a typesetting error</strong>, most likely the standard-behaviors averages pasted into the copyright block, consistent with their magnitude. This map uses the recomputed values everywhere; <a class="lnk" href="../sources.html">the sources page</a> records the check. The same arithmetic confirms Table 6 covers the 400 text behaviors, not all 510: the weights balance only at 200 + 100 + 100.</p>
 
   <h3>Two smaller discrepancies</h3>
-  <p><strong>The validation split.</strong> The paper describes the text validation set as 40 standard + 20 contextual. The shipped CSV has <strong>41 standard + 19 contextual</strong> (plus 20 copyright, for 80), consistent with the paper's note that the stratified sample was hand-adjusted. It changes no result, but a harness hard-coding 40/20 mis-slices silently. Counts here are parsed from the CSVs.</p>
+  <p><strong>The validation split.</strong> The paper describes the text validation set as 40 standard + 20 contextual. The shipped CSV has <strong>41 standard + 19 contextual</strong> (plus 20 copyright, for 80), consistent with the paper's note that the stratified sample was hand-adjusted. It changes no result, but a <span class="term" data-term="harness">harness</span> hard-coding 40/20 mis-slices silently. Counts here are parsed from the CSVs.</p>
   <p><strong>&sect;6.3's prose against its own tables.</strong> The body text reports Llama 2 7B Chat at 31.8 &rarr; 5.9 under the paper's defense, 13B at 30.2 &rarr; 5.9. The v2 tables give 32.5 &rarr; 5.5 on all behaviors, 31.9 &rarr; 6.3 on test, 13B at 30.0. The prose matches neither split, probably predating a re-run. <strong>This map uses the table figures throughout</strong>, naming the split whenever a number could be either.</p>
 
   <h2 id="reading">How to read someone else&rsquo;s HarmBench number</h2>
@@ -186,7 +190,7 @@
 
   <ul>
     <li><strong>Which split?</strong> All 400, the 320-behavior test split, or the 80-behavior validation split. Column averages barely move (GCG 54.3 / 54.2 / 54.9), but rows swing hard, since 80 behaviors makes one behavior 1.25 points: defended Zephyr under GCG is 5.5 on all behaviors, 6.3 on test, <strong>2.5 on validation</strong>.</li>
-    <li><strong>Which classifier?</strong> Test classifier is a Llama 2 13B fine-tune at ~93% human agreement; validation is a Mistral 7B at 88.6%. Not interchangeable, and the <a class="lnk" href="../measure/classifier.html#failure-modes">standing rule</a> is: never tune an attack against the classifier you report with.</li>
+    <li><strong>Which classifier?</strong> Test classifier is a Llama 2 13B fine-tune at ~93% <span class="term" data-term="percent-agreement">human agreement</span>; validation is a Mistral 7B at 88.6%. Not interchangeable, and the <a class="lnk" href="../measure/classifier.html#failure-modes">standing rule</a> is: never tune an attack against the classifier you report with.</li>
     <li><strong>What token budget?</strong> 512 new tokens, greedy, fixed. Load-bearing: a longer budget lets a partial answer become complete, and the ASR moves with nothing about the model changing.</li>
     <li><strong>Was DirectRequest reported alongside?</strong> If not, the number has no floor and cannot be read. See the Zephyr 65.8 &rarr; 69.5 case above.</li>
     <li><strong>All-behaviors or standard-only?</strong> An all-behaviors figure blends in 100 copyright behaviors nothing scores on, running about 15 points below the standard-behaviors figure for a compliant model; the two get quoted interchangeably.</li>
@@ -196,9 +200,12 @@
 
   <p>The takeaway: <strong>an ASR is a claim about the attack you ran, not the model you ran it against.</strong> The defended Zephyr row proves it: 5.5 under the attack it was trained against, 60.8 under one it was not.</p>
 
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
+
   <div class="callout">Next: <a class="lnk" href="../measure/defenses.html">Defenses: R2D2 and the read-across caveat</a> &middot; back to the <a class="lnk" href="../index.html#measure">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>

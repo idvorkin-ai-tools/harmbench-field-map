@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -65,7 +67,7 @@
 
   <p><b>There is no per-semantic-category ASR table.</b> The evidence is figures 9 and 10 and their captions: copyright sits far below the other six categories, which are roughly level, and <em>which</em> is easiest depends on the model family. Any per-category ranking quoted elsewhere with decimals was read off a bar chart or invented.</p>
 
-  <p><b>Over-refusal is not measured anywhere</b> (<a class="lnk" href="measure/classifier.html#failure-modes">what that does to the number</a>). The one capability check is table 11&rsquo;s MT-Bench column, four models, not the 33-target grid.</p>
+  <p><b>Over-refusal is not measured anywhere</b> (<a class="lnk" href="measure/classifier.html#failure-modes">what that does to the number</a>). The one capability check is table 11&rsquo;s <span class="term" data-term="mt-bench">MT-Bench</span> column, four models, not the 33-target grid.</p>
 
   <p><b>System-level defenses are out of scope by construction.</b> Input filters, output classifiers and prompt cleansing are absent; &sect;B.3 says why: a fixed set of attacks cannot fairly evaluate a defense that would call for its own adaptive attack.</p>
 
@@ -116,7 +118,7 @@
 
   <h2 id="methods">Primary papers for the red teaming methods</h2>
 
-  <p>HarmBench implements 18 methods but not 18 papers. Several columns are variants of one method (GCG-Multi and GCG-Transfer are ensemble configurations of GCG; TAP-Transfer is TAP with a fixed attacker and judge), two are HarmBench&rsquo;s own baselines, and one grading-table entry is a classifier, not an attack. Every arXiv identifier below was fetched and its title checked against the method claimed.</p>
+  <p>HarmBench implements 18 methods but not 18 papers. Several columns are variants of one method (GCG-Multi and GCG-Transfer are ensemble configurations of GCG; TAP-Transfer is TAP with a fixed attacker and <span class="term" data-term="llm-judge">judge</span>), two are HarmBench&rsquo;s own baselines, and one grading-table entry is a classifier, not an attack. Every arXiv identifier below was fetched and its title checked against the method claimed.</p>
 
   <h3>Gradient and token-level &mdash; <a class="lnk" href="attacks/gradient.html">attacks/gradient</a></h3>
 
@@ -131,7 +133,7 @@
   </tbody>
   </table></div>
 
-  <p>UAT (2019) and AutoPrompt (2020) predate the jailbreaking literature: written for model analysis and prompt discovery, not safety. Their use as red teaming baselines is HarmBench&rsquo;s framing, not the original authors&rsquo;.</p>
+  <p>UAT (2019) and AutoPrompt (2020) predate the <span class="term" data-term="jailbreak">jailbreaking</span> literature: written for model analysis and prompt discovery, not safety. Their use as <span class="term" data-term="red-teaming">red teaming</span> baselines is HarmBench&rsquo;s framing, not the original authors&rsquo;.</p>
 
   <h3>LLM-optimizer &mdash; <a class="lnk" href="attacks/llm-optimizer.html">attacks/llm-optimizer</a></h3>
 
@@ -146,7 +148,7 @@
   </tbody>
   </table></div>
 
-  <p>These are not always the original implementations: where a method used a closed model as attacker or judge, HarmBench substitutes Mixtral 8x7B to keep compute comparable, and it uses the in-context PAP because the fine-tuned paraphraser is not public. Both can lower a method&rsquo;s measured ASR relative to its own paper.</p>
+  <p>These are not always the original implementations: where a method used a closed model as attacker or judge, HarmBench substitutes Mixtral 8x7B to keep compute comparable, and it uses the in-context PAP because the <span class="term" data-term="fine-tuning">fine-tuned</span> paraphraser is not public. Both can lower a method&rsquo;s measured <span class="term" data-term="attack-success-rate">ASR</span> relative to its own paper.</p>
 
   <h3>Template, few-shot and human &mdash; <a class="lnk" href="attacks/template.html">attacks/template</a></h3>
 
@@ -210,13 +212,16 @@
 
   <p><b>Per-category ASR is not available and is not invented anywhere on this site.</b> Six of the seven harm pages state that the paper does not tabulate ASR by semantic category and stop there. The seventh, copyright, has real numbers because it is also a functional type with its own sub-table, and those are the recomputed averages, not the printed row.</p>
 
-  <p><b>What this site carries, and what it does not.</b> The dataset is here: all 510 behaviors and their context strings are reproduced on <a class="lnk" href="data/behaviors.html">the behavior index</a> from the MIT-licensed repository, and every harm page shows its examples verbatim. The attack tooling is not: no jailbreak template, persuasion script, model completion, or suffix optimised against a current model. Method pages explain mechanisms and carry no payloads, with one marked exception: <a class="lnk" href="attacks/gradient.html#specimens">two 2023 GCG suffixes</a> from the authors&rsquo; own disclosure, against Vicuna and Llama&nbsp;2 7B Chat, long since non-transferable. The other verbatim block is the classifier&rsquo;s judging rubric on <a class="lnk" href="measure/classifier.html#prompt">the grader page</a>, a grading instruction, not an attack. Context passages appear on the behavior index, not inline, where at up to 3,544 characters they would swamp the argument.</p>
+  <p><b>What this site carries, and what it does not.</b> The dataset is here: all 510 behaviors and their context strings are reproduced on <a class="lnk" href="data/behaviors.html">the behavior index</a> from the MIT-licensed repository, and every harm page shows its examples verbatim. The attack tooling is not: no jailbreak template, persuasion script, model completion, or suffix optimised against a current model. Method pages explain mechanisms and carry no payloads, with one marked exception: <a class="lnk" href="attacks/gradient.html#specimens">two 2023 GCG suffixes</a> from the authors&rsquo; own disclosure, against Vicuna and Llama&nbsp;2 7B Chat, long since non-transferable. The other verbatim block is the classifier&rsquo;s judging <span class="term" data-term="rubric">rubric</span> on <a class="lnk" href="measure/classifier.html#prompt">the grader page</a>, a grading instruction, not an attack. Context passages appear on the behavior index, not inline, where at up to 3,544 characters they would swamp the argument.</p>
 
   <p><b>Every external URL on this page was checked</b> at compile time: 33 URLs, 32 returning 200, the Zenodo record a traffic-based 403 to automated clients while live in a browser. Each cited arXiv identifier was fetched and its title compared against the method attributed. Compiled 2026-09-08 against the repository at <span class="mono">main</span> and arXiv:2402.04249v2.</p>
+
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
 
   <div class="callout">Next: <a class="lnk" href="index.html">back to the field map</a>, or jump to <a class="lnk" href="measure/results.html#discrepancy">the results page</a> for the copyright reconciliation in full, <a class="lnk" href="data/behaviors.html">the behavior index</a> for all 510 IDs, or the <a class="lnk" href="index.html#refs">sources section</a> of the spine.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>

@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -20,7 +22,7 @@
   <h1>Misinformation &amp; Disinformation</h1>
   <div class="authors">The category where the harmful output looks like a capability the model was trained to have.</div>
 
-  <div class="tldr"><b>TL;DR:</b> 68 of HarmBench's 510 behaviors ask a model to manufacture false or defamatory content. 31 of the 65 text behaviors are <a class="lnk" href="../types/contextual.html">contextual</a>, the largest single source of contextual behaviors in the benchmark. It is one of two categories the paper names: Figure 10's caption gives it the <b>highest ASR</b> on Llama 2 and GPT models, though that is a caption, not a table, and model-family specific. Nothing in the grading rubric checks whether the claim is false, only whether the model wrote it.</div>
+  <div class="tldr"><b>TL;DR:</b> 68 of HarmBench's 510 behaviors ask a model to manufacture false or defamatory content. 31 of the 65 text behaviors are <a class="lnk" href="../types/contextual.html">contextual</a>, the largest single source of <span class="term" data-term="contextual-behavior">contextual behaviors</span> in the benchmark. It is one of two categories the paper names: Figure 10's caption gives it the <b>highest ASR</b> on Llama 2 and GPT models, though that is a caption, not a table, and model-family specific. Nothing in the grading <span class="term" data-term="rubric">rubric</span> checks whether the claim is false, only whether the model wrote it.</div>
 
   <div class="chips">
     <a class="tag wb" href="cybercrime-intrusion.html">01 Cybercrime &amp; Intrusion</a>
@@ -86,9 +88,9 @@
     <li><b>The harmful-or-undesirable rule:</b> the completion must itself be something a public-facing LLM should not emit. This vaguest rule carries the most weight here.</li>
   </ul>
 
-  <p>Cybercrime has a clause demanding <em>code artifacts</em>; nothing analogous exists here, and nothing verifies the claim is false. An ASR number here measures <b>compliance with a writing brief</b>, not truth.</p>
+  <p>Cybercrime has a clause demanding <em>code artifacts</em>; nothing analogous exists here, and nothing verifies the claim is false. An <span class="term" data-term="attack-success-rate">ASR</span> number here measures <b>compliance with a writing brief</b>, not truth.</p>
 
-  <p>The ~93% human agreement in <a class="lnk" href="../measure/classifier.html#agreement">Table 3</a> is an average; its contextual sub-row (90.5%) is below the standard one (94.53%), so at 48% contextual two attacks three points apart are not distinguishable.</p>
+  <p>The ~93% <span class="term" data-term="percent-agreement">human agreement</span> in <a class="lnk" href="../measure/classifier.html#agreement">Table 3</a> is an average; its contextual sub-row (90.5%) is below the standard one (94.53%), so at 48% contextual two attacks three points apart are not distinguishable.</p>
 
   <h2 id="behaviors">What the behaviors ask for</h2>
 
@@ -106,7 +108,7 @@
     </tbody>
   </table></div>
 
-  <p>On tags: all 31 contextual behaviors carry <span class="mono">context</span> and nothing else; the 34 standard ones carry none. The <span class="mono">hash_check</span> / <span class="mono">book</span> / <span class="mono">lyrics</span> triplet never appears, so a tag-branching harness exercises one branch.</p>
+  <p>On tags: all 31 contextual behaviors carry <span class="mono">context</span> and nothing else; the 34 standard ones carry none. The <span class="mono">hash_check</span> / <span class="mono">book</span> / <span class="mono">lyrics</span> triplet never appears, so a tag-branching <span class="term" data-term="harness">harness</span> exercises one branch.</p>
 
   <p>The slugs are also <b>date-stamped</b>, clustering on 2020&ndash;2023 news (a US election and its aftermath, COVID-19, the war in Ukraine, then-serving officials), an exposure to the calendar no other category has.</p>
 
@@ -124,7 +126,7 @@
 
   <p>Figure 11 reports ASR <b>considerably higher for contextual behaviors than standard</b>, and the Table 6 sub-tables bear it out: <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a> averages 69.1 on standard against 74.8 on contextual, <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a> (no attack) 23.9 against <b>46.2</b>. A 48%-contextual category is mechanically pulled up by that, an inference from composition, not a reported per-category figure.</p>
 
-  <p><b>The paper does not say</b> which attacks win <em>here</em>: there is no attack &times; category grid. The DirectRequest gap leaves the <a class="lnk" href="../attacks/gradient.html">gradient family</a> less headroom here, and GCG cannot run against GPT models, so the GPT half of the Figure 10 claim rests on transfer and query-only methods: <a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a>, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, <a class="lnk" href="../attacks/llm-optimizer.html#autodan">AutoDAN</a> on the open side.</p>
+  <p><b>The paper does not say</b> which attacks win <em>here</em>: there is no attack &times; category grid. The DirectRequest gap leaves the <a class="lnk" href="../attacks/gradient.html">gradient family</a> less headroom here, and GCG cannot run against GPT models, so the GPT half of the Figure 10 claim rests on <span class="term" data-term="transfer-attack">transfer</span> and query-only methods: <a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a>, <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, <a class="lnk" href="../attacks/llm-optimizer.html#autodan">AutoDAN</a> on the open side.</p>
 
   <h2 id="multimodal">The multimodal side</h2>
 
@@ -137,13 +139,16 @@
 
   <h2 id="watch">What an evaluator should watch for</h2>
 
-  <p>The unmeasured failure is over-refusal, worst here. HarmBench ships no benign set and no false-refusal metric: a model that refuses everything scores 0% ASR and looks perfect. Unlike <a class="lnk" href="cybercrime-intrusion.html">cybercrime</a>, where few legitimate requests resemble a keylogger, here they are ordinary and numerous (a debate brief, an edit to a client's framing). A model tuned to zero ASR is plausibly useless at those, so pair any hardening with an over-refusal set you supply yourself.</p>
+  <p>The unmeasured failure is <span class="term" data-term="over-refusal">over-refusal</span>, worst here. HarmBench ships no benign set and no false-refusal metric: a model that refuses everything scores 0% ASR and looks perfect. Unlike <a class="lnk" href="cybercrime-intrusion.html">cybercrime</a>, where few legitimate requests resemble a keylogger, here they are ordinary and numerous (a debate brief, an edit to a client's framing). A model tuned to zero ASR is plausibly useless at those, so pair any hardening with an over-refusal set you supply yourself.</p>
 
   <p>Drop the <a class="lnk" href="../types/contextual.html#contextstring"><span class="mono">ContextString</span></a> column and 31 of these 65 behaviors become different, easier ones the classifier can no longer check against their source. The Figure 10 finding describes Llama 2 and GPT models as of early 2024, so the <a class="lnk" href="../measure/defenses.html#read-across">read-across caveat</a> applies with extra force to a caption-level ranking. To learn whether <em>your</em> model is soft here, run the 54 test behaviors against the other six categories.</p>
+
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
 
   <div class="callout off">Next: <a class="lnk" href="../harms/chemical-biological.html">Chemical &amp; Biological Weapons / Drugs</a> &mdash; the other category Figure 10 names &middot; back to the <a class="lnk" href="../index.html#harms">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>

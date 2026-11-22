@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../paper.css" />
+<script>try{var m=localStorage.getItem('aitools-mode')||localStorage.getItem('llm-judges-mode');if(m==='tech'||m==='eli5')document.documentElement.setAttribute('data-'+m,'on')}catch(e){}</script>
+<style>html:is([data-tech="on"],[data-eli5="on"]) .plain-only,html:not([data-tech="on"]) .tech-only,html:not([data-eli5="on"]) .eli5-only,html[data-tech="on"] .no-tech{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="bar-in">
@@ -29,7 +31,7 @@
     <a class="tag wb" href="harassment-bullying.html">07 Harassment &amp; Bullying</a>
   </div>
 
-  <div class="tldr"><b>TL;DR &mdash;</b> General Harm is a residual bucket for three unrelated things: graphic and age-restricted content, promotion of unsafe practices, and privacy violations. It is the smallest text category: 22 of 400 behaviors, 21 <a class="lnk" href="../types/standard.html">standard</a> and one <a class="lnk" href="../types/contextual.html">contextual</a>, 18 in the test split. One behavior is worth 4.5 points of ASR and the sampling interval is roughly &plusmn;21 points, so no per-category comparison from it means anything, and the paper never makes one. Privacy violation is carried almost entirely by the nine <a class="lnk" href="../types/multimodal.html">multimodal</a> behaviors.</div>
+  <div class="tldr"><b>TL;DR &mdash;</b> General Harm is a residual bucket for three unrelated things: graphic and age-restricted content, promotion of unsafe practices, and privacy violations. It is the smallest text category: 22 of 400 behaviors, 21 <a class="lnk" href="../types/standard.html">standard</a> and one <a class="lnk" href="../types/contextual.html">contextual</a>, 18 in the test split. One behavior is worth 4.5 points of <span class="term" data-term="attack-success-rate">ASR</span> and the sampling interval is roughly &plusmn;21 points, so no per-category comparison from it means anything, and the paper never makes one. Privacy violation is carried almost entirely by the nine <a class="lnk" href="../types/multimodal.html">multimodal</a> behaviors.</div>
 
   <div class="statgrid">
     <div class="s"><div class="k">Text</div><div class="v">22</div><div class="n">5.5% of the 400 text behaviors</div></div>
@@ -72,7 +74,7 @@
 
   <h2 id="grading">How this category is graded</h2>
 
-  <p>Twenty-one of the 22 text behaviors take the plain path: the fine-tuned Llama 2 13B <a class="lnk" href="../measure/classifier.html">classifier</a> with the <a class="lnk" href="../measure/classifier.html#prompt"><span class="mono">prompt</span> template</a>, reading behavior plus completion for a yes/no. The one contextual behavior goes to <span class="mono">prompt_contextual</span>, since <span class="mono">compute_results_classifier</span> branches on whether the row's tags contain <span class="mono">context</span>. Nothing here touches the <a class="lnk" href="../measure/classifier.html#minhash">MinHash</a> path, which is <a class="lnk" href="copyright.html">copyright</a>-only.</p>
+  <p>Twenty-one of the 22 text behaviors take the plain path: the <span class="term" data-term="fine-tuning">fine-tuned</span> Llama 2 13B <a class="lnk" href="../measure/classifier.html">classifier</a> with the <a class="lnk" href="../measure/classifier.html#prompt"><span class="mono">prompt</span> template</a>, reading behavior plus completion for a yes/no. The one <span class="term" data-term="contextual-behavior">contextual behavior</span> goes to <span class="mono">prompt_contextual</span>, since <span class="mono">compute_results_classifier</span> branches on whether the row's tags contain <span class="mono">context</span>. Nothing here touches the <a class="lnk" href="../measure/classifier.html#minhash">MinHash</a> path, which is <a class="lnk" href="copyright.html">copyright</a>-only.</p>
 
   <p>Three of the classifier's seven rules do the work in this category:</p>
 
@@ -115,7 +117,7 @@
 
   <p>You can bracket it with the sub-tables the paper does publish: over all 200 standard behaviors, column averages run <span class="mono">69.1</span> for <a class="lnk" href="../attacks/gradient.html#gcg">GCG</a>, <span class="mono">68.3</span> for <a class="lnk" href="../attacks/llm-optimizer.html#autodan">AutoDAN</a>, <span class="mono">60.0</span> for <a class="lnk" href="../attacks/llm-optimizer.html#tap-transfer">TAP-Transfer</a>, <span class="mono">47.5</span> for <a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a>, <span class="mono">31.9</span> for <a class="lnk" href="../attacks/template.html#human-jailbreaks">Human Jailbreaks</a> and <span class="mono">23.9</span> for <a class="lnk" href="../attacks/template.html#directrequest">DirectRequest</a>. Those describe the slice, not this category.</p>
 
-  <p><b>Now the arithmetic.</b> ASR is the mean classifier label over test cases, one per behavior by default for the token-level attacks. On 22 behaviors the metric is quantised at <b>4.5 percentage points</b>, so a "5-point difference" is one behavior changing its mind; on the 18-behavior test split it is <b>5.6 points</b>, on the 4-behavior validation slice <b>25 points</b>, not a measurement at all.</p>
+  <p><b>Now the arithmetic.</b> ASR is the mean classifier label over test cases, one per behavior by default for the <span class="term" data-term="token">token</span>-level attacks. On 22 behaviors the metric is quantised at <b>4.5 percentage points</b>, so a "5-point difference" is one behavior changing its mind; on the 18-behavior test split it is <b>5.6 points</b>, on the 4-behavior validation slice <b>25 points</b>, not a measurement at all.</p>
 
   <p>Sampling error is worse. A General Harm ASR carries a 95% binomial interval of roughly <b>&plusmn;21 points</b> on the full 22 and <b>&plusmn;23</b> on the test split, against about &plusmn;5 on the full 400. Add the <a class="lnk" href="../measure/classifier.html#agreement">grader's ~7% disagreement with human labels</a> and the correlated clusters above, and any per-category ranking from 22 behaviors is noise the numbers invite, not a flaw in a benchmark that reports over 400.</p>
 
@@ -135,7 +137,7 @@
 
   <p>Grading follows the multimodal path: the separate <span class="mono">cais/HarmBench-Llama-2-13b-cls-multimodal-behaviors</span> classifier, <span class="mono">prompt_contextual</span> with the CSV's <span class="mono">RedactedImageDescription</span> as context. <b>The grader never sees the image</b>, so from the redacted description it can tell the model made a confident attribute inference but not whether it was about the person in the picture.</p>
 
-  <p>Two practitioner notes. The multimodal set is <b>not split into test and validation</b>, so there is no held-out slice. And the dispatch branch keys on a <span class="mono">multimodal</span> tag the shipped CSV's <span class="mono">Tags</span> column does not populate, so on a run you assemble yourself, verify the redacted description reaches the classifier. The five multimodal methods and Tables 9 and 10 are on the <a class="lnk" href="../types/multimodal.html">multimodal type page</a>; the run is the usual four-step <a class="lnk" href="../measure/pipeline.html">pipeline</a>.</p>
+  <p>Two practitioner notes. The multimodal set is <b>not split into test and validation</b>, so there is no <span class="term" data-term="held-out-set">held-out</span> slice. And the dispatch branch keys on a <span class="mono">multimodal</span> tag the shipped CSV's <span class="mono">Tags</span> column does not populate, so on a run you assemble yourself, verify the redacted description reaches the classifier. The five multimodal methods and Tables 9 and 10 are on the <a class="lnk" href="../types/multimodal.html">multimodal type page</a>; the run is the usual four-step <a class="lnk" href="../measure/pipeline.html">pipeline</a>.</p>
 
   <h2 id="watch">What a residual category tells you</h2>
 
@@ -143,9 +145,12 @@
 
   <p><b>General Harm will not map</b> onto your own taxonomy: its three sub-types belong in three different places in most frameworks, and the privacy piece comes from the multimodal set, not the text set. HarmBench files privacy violations here rather than under <a class="lnk" href="illegal.html">Illegal Activities</a> where a data-protection taxonomy would put them, the likeliest place for a mapping to go wrong. Provenance for every claim is on the <a class="lnk" href="../sources.html">sources page</a>.</p>
 
+  <section id="definitions"><h2>Definitions</h2><div data-terms-list></div></section>
+
   <div class="callout off">Next: <a class="lnk" href="../harms/harassment-bullying.html">Harassment &amp; Bullying</a> &mdash; the last of the seven, and the one where the classifier's "unambiguous and non-minimal" rule does the most work &middot; back to the <a class="lnk" href="../index.html#harms">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
 </body>
