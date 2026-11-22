@@ -192,6 +192,9 @@ else:
 
   <p><b>~93% agreement is ~7% label noise.</b> The test classifier makes 41 errors on the 600-example set, and that floor propagates into every cell, so two attacks a few points apart are not distinguishable: read <a class="lnk" href="../measure/results.html#findings">the results table</a> as bands, not a decimal-precision ranking. How to check a judge like this one in general (agreement beyond chance, judge against truth, error bars on a score) is the subject of the LLM Judges map: <a class="lnk" href="https://idvorkin-ai-tools.github.io/llm-judges-field-map/parts/p04.html">do the judges agree?</a>, <a class="lnk" href="https://idvorkin-ai-tools.github.io/llm-judges-field-map/parts/p05.html">judge versus truth</a> and <a class="lnk" href="https://idvorkin-ai-tools.github.io/llm-judges-field-map/parts/p08.html#error-bars">error bars</a>.</p>
 
+  <p class="lab-try"><b>Try this</b>Pick a pair from this map, then drag the gap: it has to clear the orange band (41 errors in 600, about 6.8 points) before the ranking means anything. Treats each ASR as one model over n behaviors.</p>
+  <div class="lab" data-widget="noise"></div>
+
   <p><b>The grader is a 13B model that wants a GPU.</b> <span class="mono">LLM(model=args.cls_path, tensor_parallel_size=1)</span> loads into vLLM on one device for the whole pass, a GPU job over (behaviors &times; models &times; attacks &times; test cases) completions.</p>
 
   <p><b>Drop the <span class="mono">ContextString</span> and a quarter of the text set silently becomes a different, easier benchmark</b>, the likeliest way for a third-party HarmBench number to be wrong.</p>
@@ -209,6 +212,9 @@ else:
   <div class="callout">Next: <a class="lnk" href="../measure/pipeline.html">Running it: the four steps</a>, where the 512-token budget is set, why a merge step exists, and the one field in <span class="mono">models.yaml</span> that decides which attacks you may run. Back to the <a class="lnk" href="../index.html#measure">map</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/widgets.js" defer></script>
+<script src="../lab/noise.js" defer></script>
+<script src="../widgets/noise.js" defer></script>
 <script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>

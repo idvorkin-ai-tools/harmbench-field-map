@@ -85,6 +85,9 @@
     </tbody>
   </table></div>
 
+  <p class="lab-try"><b>Try this</b>Filter by family and toggle R2D2: the gradient bars collapse to near zero, the LLM-optimizer bars barely move, and the overall mean goes 62.3 &rarr; 18.9.</p>
+  <div class="lab" data-widget="r2d2"></div>
+
   <p>&infin; means the column reached exactly 0.0. The &times; column is arithmetic on the two printed columns, not reported by the paper; the last row is the plain mean of the sixteen cells. Table 11 gives 62.7 and 19.1 for the same models, a slightly different "Average ASR" slice: the same mismatch that makes Zephyr's GCG ASR 69.4 there and 69.5 here.</p>
 
   <p><b>5.5 under GCG is the best any model-level defense in the paper achieves against its strongest attack</b>, beating Llama 2 13B Chat's 30.0 and 70B Chat's 37.5, both products of full industrial <span class="term" data-term="rlhf">RLHF</span>. The denominator is the 400 <em>text</em> behaviors (200 standard, 100 contextual, 100 copyright); the 110 multimodal behaviors sit in Table 9. It includes the 100 <a class="lnk" href="../types/copyright.html">copyright behaviors</a>, <span class="term" data-term="minhash">MinHash</span>-graded near the floor for every model and attack (see <a class="lnk" href="../harms/copyright.html">the copyright category</a>), which pull both rows down about equally, so the comparison is fair but not a uniform compliance rate.</p>
@@ -158,6 +161,9 @@
   <div class="callout">Next: <a class="lnk" href="../sources.html">Sources, verified</a> &mdash; every file, table and URL this map draws on, and the three places the repo and the paper disagree. Or return to <a class="lnk" href="../index.html">the field map</a> and start an arc you have not read; this page is the last of <a class="lnk" href="../index.html#measure">Measuring</a>.</div>
 </main>
 <footer>Original explanation of HarmBench (Mazeika et al., 2024). Counts parsed from the repository at <span class="mono">main</span>; results from arXiv:2402.04249v2. Behavior text and context strings are reproduced from the MIT-licensed dataset where they are published; jailbreak templates, persuasion scripts and model completions are not.</footer>
+<script src="https://idvorkin-ai-tools.github.io/assets/widgets.js" defer></script>
+<script src="../lab/r2d2.js" defer></script>
+<script src="../widgets/r2d2.js" defer></script>
 <script src="https://idvorkin-ai-tools.github.io/assets/terms.js" defer></script>
 <!-- Private comments mode, inert unless ?annotate=1 (see assets/annotate.js in idvorkin-ai-tools.github.io) -->
 <script src="https://idvorkin-ai-tools.github.io/assets/annotate.js" defer></script>
