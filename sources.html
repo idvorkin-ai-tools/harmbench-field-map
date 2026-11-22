@@ -65,7 +65,7 @@
 
   <p><b>There is no per-semantic-category ASR table.</b> The evidence is figures 9 and 10 and their captions: copyright sits far below the other six categories, which are roughly level, and <em>which</em> is easiest depends on the model family. Any per-category ranking quoted elsewhere with decimals was read off a bar chart or invented.</p>
 
-  <p><b>Over-refusal is not measured anywhere.</b> No benign or false-refusal set ships or is evaluated, so a model that refuses every input scores 0% ASR. The one capability check is table 11&rsquo;s MT-Bench column, four models, not the 33-target grid.</p>
+  <p><b>Over-refusal is not measured anywhere</b> (<a class="lnk" href="measure/classifier.html#failure-modes">what that does to the number</a>). The one capability check is table 11&rsquo;s MT-Bench column, four models, not the 33-target grid.</p>
 
   <p><b>System-level defenses are out of scope by construction.</b> Input filters, output classifiers and prompt cleansing are absent; &sect;B.3 says why: a fixed set of attacks cannot fairly evaluate a defense that would call for its own adaptive attack.</p>
 
@@ -187,7 +187,7 @@
   <div class="scroll"><table class="kv">
   <thead><tr><th>Copyright column average</th><th class="num">GCG</th><th class="num">GCG-M</th><th class="num">GCG-T</th><th class="num">PEZ</th><th class="num">AutoDAN</th><th class="num">Human</th><th class="num">DR</th></tr></thead>
   <tbody>
-    <tr><td>Table 6, <b>as printed</b> (all 510)</td><td class="num"><span class="hi">50.7</span></td><td class="num">41.6</td><td class="num">36.5</td><td class="num">28.2</td><td class="num">48.8</td><td class="num">26.2</td><td class="num">25.6</td></tr>
+    <tr><td>Table 6, <b>as printed</b> (400 text behaviors)</td><td class="num"><span class="hi">50.7</span></td><td class="num">41.6</td><td class="num">36.5</td><td class="num">28.2</td><td class="num">48.8</td><td class="num">26.2</td><td class="num">25.6</td></tr>
     <tr><td>Table 6, recomputed from its cells</td><td class="num">4.6</td><td class="num">3.3</td><td class="num">4.3</td><td class="num">4.0</td><td class="num">6.0</td><td class="num">4.3</td><td class="num">7.3</td></tr>
     <tr><td>Table 7, test split, as printed</td><td class="num">4.7</td><td class="num">3.5</td><td class="num">4.4</td><td class="num">4.2</td><td class="num">6.5</td><td class="num">4.6</td><td class="num">7.5</td></tr>
     <tr><td>Table 8, validation split, as printed</td><td class="num">3.9</td><td class="num">2.9</td><td class="num">3.9</td><td class="num">3.3</td><td class="num">3.8</td><td class="num">3.2</td><td class="num">6.7</td></tr>

@@ -107,10 +107,10 @@ for i in range(0, max(1, len(words) - overlap), stride):
   <p>The copyright column is <b>a floor on verbatim regurgitation, not a measure of copyright risk.</b> The <a class="lnk" href="../measure/pipeline.html#steps">512-token</a> generation budget compounds this: 150 tokens of preamble roughly halves the chance of filling one book window, and it bites hardest here.</p>
 
   <h2 id="asr">The numbers, and the inversion</h2>
-  <p>Copyright ASRs sit an order of magnitude below the rest of the benchmark; below, each method&rsquo;s copyright sub-table average sits beside its all-510 average, sorted by the former. <b>The copyright figures are recomputed from the grid</b>, since the arXiv v2 HTML prints an Average row inconsistent with its own cells that <a class="lnk" href="../measure/results.html#discrepancy">the results page</a> reconciles.</p>
+  <p>Copyright ASRs sit an order of magnitude below the rest of the benchmark; below, each method&rsquo;s copyright sub-table average sits beside its all-behaviors average (the 400 text behaviors), sorted by the former. <b>The copyright figures are recomputed from the grid</b>, since the arXiv v2 HTML prints an Average row inconsistent with its own cells that <a class="lnk" href="../measure/results.html#discrepancy">the results page</a> reconciles.</p>
 
   <div class="scroll"><table class="kv">
-    <thead><tr><th>Method</th><th class="num">Copyright (100)</th><th class="num">All 510</th></tr></thead>
+    <thead><tr><th>Method</th><th class="num">Copyright (100)</th><th class="num">All 400 text</th></tr></thead>
     <tbody>
       <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#tap">TAP</a></td><td class="num"><span class="hi">8.5</span></td><td class="num">45.2</td></tr>
       <tr><td><a class="lnk" href="../attacks/llm-optimizer.html#pair">PAIR</a></td><td class="num">7.5</td><td class="num">40.7</td></tr>
@@ -145,7 +145,7 @@ for i in range(0, max(1, len(words) - overlap), stride):
 
 <pre class="code-block"><code>(200 &times; 69.1  +  100 &times; 74.8  +  100 &times; 4.6) / 400  =  21,760 / 400  =  54.4  &asymp;  54.3 printed</code></pre>
 
-  <p>The 0.1 is rounding; the reconciliation holds. Against the printed all-510 figure, copyright costs GCG <b>16.7 points</b> (71.0 &rarr; 54.3), AutoDAN 15.6, TAP-Transfer 14.2, but PAP-top5 only 3.1 and DirectRequest 6.0, a mean of about 10.5 across the sixteen columns. Because the penalty scales with an attack&rsquo;s strength on the other 300 behaviors, the slice <em>compresses the spread</em>: standard+contextual runs 19.7 to 71.0 (range 51), folded into all-510 it runs 16.6 to 54.3 (range 38).</p>
+  <p>The 0.1 is rounding; the reconciliation holds. Against the printed all-behaviors figure, copyright costs GCG <b>16.7 points</b> (71.0 &rarr; 54.3), AutoDAN 15.6, TAP-Transfer 14.2, but PAP-top5 only 3.1 and DirectRequest 6.0, a mean of about 10.5 across the sixteen columns. Because the penalty scales with an attack&rsquo;s strength on the other 300 behaviors, the slice <em>compresses the spread</em>: standard+contextual runs 19.7 to 71.0 (range 51), folded into all-510 it runs 16.6 to 54.3 (range 38).</p>
 
   <h2 id="practice">If you are running this</h2>
   <p>Three carries. <b>Report the sub-tables, not just the blend</b>, since an all-behaviors ASR mixes two metrics on different scales. <b>Do not read a low copyright ASR as a safety property</b>: it says only that the model did not emit 300 consecutive near-verbatim tokens inside a 512-token budget. And <b>a gradient attack will not help</b>: its affirmative-prefix objective is orthogonal to verbatim recall. To probe memorisation, ask directly with a longer budget, at which point it is no longer a HarmBench number.</p>

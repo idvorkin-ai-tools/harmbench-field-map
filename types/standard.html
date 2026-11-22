@@ -145,7 +145,7 @@
       <tr><td>Standard (200)</td><td class="num">69.1</td><td class="num">68.3</td><td class="num">60.0</td><td class="num">47.5</td><td class="num">31.9</td><td class="num">23.9</td></tr>
       <tr><td><a class="lnk" href="../types/contextual.html">Contextual (100)</a></td><td class="num">74.8</td><td class="num">68.4</td><td class="num">67.5</td><td class="num">60.5</td><td class="num">41.4</td><td class="num"><span class="hi">46.2</span></td></tr>
       <tr><td><a class="lnk" href="../types/copyright.html">Copyright (100)</a></td><td class="num">~4.6</td><td class="num">~6.0</td><td class="num">~5.9</td><td class="num">~7.5</td><td class="num">~4.3</td><td class="num">~7.3</td></tr>
-      <tr class="tot"><td>All 510</td><td class="num">54.3</td><td class="num">52.7</td><td class="num">48.3</td><td class="num">40.7</td><td class="num">27.3</td><td class="num">25.3</td></tr>
+      <tr class="tot"><td>All 400 text</td><td class="num">54.3</td><td class="num">52.7</td><td class="num">48.3</td><td class="num">40.7</td><td class="num">27.3</td><td class="num">25.3</td></tr>
     </tbody>
   </table></div>
 
@@ -159,13 +159,13 @@
 
   <p>The paper describes the 80-behavior text validation split as 40 standard, 20 contextual, 20 copyright. The shipped <span class="mono">harmbench_behaviors_text_val.csv</span> has <b>41 standard and 19 contextual</b>: one behavior sits on the other side of the line. Test is 159/81/80, totals unaffected. The paper notes the stratified sample was manually adjusted.</p>
 
-  <p>One behavior is worth about 2.4 points on a 41-behavior column. Val is where you tune: you optimise against <span class="mono">cais/HarmBench-Mistral-7b-val-cls</span> on val and report on test, so which behaviors count as "held out" is itself uncertain. Standard GCG averages 68.4 on test against 71.9 on val. All three discrepancies this map found are on <a class="lnk" href="../sources.html">the sources page</a>.</p>
+  <p>One behavior is worth about 2.4 points on a 41-behavior column. Val is where you tune: you optimise against <span class="mono">cais/HarmBench-Mistral-7b-val-cls</span> on val and report on test, so which behaviors count as "held out" is itself uncertain. Standard GCG averages 68.4 on test against 71.9 on val. All four discrepancies this map found (three material) are on <a class="lnk" href="../sources.html">the sources page</a>.</p>
 
   <h2 id="carry">What to carry away</h2>
 
   <p>Standard is the control condition: one sentence, a well-validated grader saying yes or no, nothing else. Every other type adds a complication (a passage the grader must see, a hash comparison, an image it never sees), so to read a HarmBench result, ask for the standard sub-table first.</p>
 
-  <p>It also flatters a defender: a model can be near-perfect here (Llama 2 7B Chat 0.0 under DirectRequest) while its contextual and <a class="lnk" href="../types/multimodal.html">multimodal</a> numbers say otherwise. <a class="lnk" href="../measure/classifier.html#failure-modes">Over-refusal is not measured anywhere in HarmBench</a>: refuse everything and you score a perfect 0%. The 200 tell you what got through, nothing about what should not have been stopped.</p>
+  <p>It also flatters a defender: a model can be near-perfect here (Llama 2 7B Chat 0.0 under DirectRequest) while its contextual and <a class="lnk" href="../types/multimodal.html">multimodal</a> numbers say otherwise, and <a class="lnk" href="../measure/classifier.html#failure-modes">over-refusal is not measured</a>, so the 200 tell you what got through, nothing about what should not have been stopped.</p>
 
   <div class="callout off">Next: <a class="lnk" href="../types/contextual.html">Contextual behaviors</a> &mdash; the 100 that carry a passage, why the <span class="mono">ContextString</span> has to reach the grader too, and the mechanics behind the 22-point DirectRequest gap above &middot; back to the <a class="lnk" href="../index.html#types">map</a>.</div>
 </main>
